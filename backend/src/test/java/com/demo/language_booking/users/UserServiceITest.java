@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,7 +85,7 @@ public class UserServiceITest {
         UserCreateRequest request2 = defaultCreateUserRequestBuilder()
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> userService.create(request2));
+        assertThrows(DataIntegrityViolationException.class, () -> userService.create(request2));
     }
 
     @DisplayName("Create user with duplicate email fails")
@@ -99,7 +100,7 @@ public class UserServiceITest {
                 .username("anotherUser")
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> userService.create(request2));
+        assertThrows(DataIntegrityViolationException.class, () -> userService.create(request2));
     }
 
     
@@ -203,7 +204,7 @@ public class UserServiceITest {
                 .email("updated@example.com")
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> userService.update(id, updateRequest));
+        assertThrows(DataIntegrityViolationException.class, () -> userService.update(id, updateRequest));
     }
 
     @DisplayName("Update a user with existing email fails")
@@ -227,7 +228,7 @@ public class UserServiceITest {
                 .password("newPassword")
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> userService.update(id, updateRequest));
+        assertThrows(DataIntegrityViolationException.class, () -> userService.update(id, updateRequest));
     }
 
     @DisplayName("Update a user with invalid username fails validation")
@@ -302,8 +303,8 @@ public class UserServiceITest {
         User createdUser = userRepository.save(userMapper.mapToUser(request));
         Long id = createdUser.getId();
         userService.delete(id);
-        Optional<User> result = userRepository.findById(id);
 
+        Optional<User> result = userRepository.findById(id);
         assertTrue(result.isPresent());
         assertNotNull(result.get().getDeletedAt());
     }

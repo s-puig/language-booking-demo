@@ -3,10 +3,8 @@ package com.demo.language_booking.users.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import com.demo.language_booking.users.User.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Data

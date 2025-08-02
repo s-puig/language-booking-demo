@@ -1,35 +1,56 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.common.exceptions.ResourceNotFound;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Validated
 public class UserService {
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserMapper userMapper;
 
     @NotNull
     public List<User> getAll() {
-        throw new UnsupportedOperationException("Not Implemented");
+        return userRepository.findAll();
     }
 
     public User create(@Valid UserCreateRequest userCreateRequest) {
-        throw new UnsupportedOperationException("Not Implemented");
+        User user = userMapper.mapToUser(userCreateRequest);
+        return userRepository.save(user);
     }
 
-    public Optional<User> getById(Long id) {
-        throw new UnsupportedOperationException("Not Implemented");
+    public Optional<User> getById(long id) {
+        return userRepository.findById(id);
     }
 
     public User update(long id, @Valid UserCreateRequest user) {
-        throw new UnsupportedOperationException("Not Implemented");
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
+
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPassword(user.getPassword());
+
+        return userRepository.save(existingUser);
     }
 
     public void delete(long id) {
-        throw new UnsupportedOperationException("Not Implemented");
+        User user = getById(id).orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

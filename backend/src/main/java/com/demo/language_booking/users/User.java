@@ -3,6 +3,7 @@ package com.demo.language_booking.users;
 import com.demo.language_booking.common.Country;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -34,6 +35,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<UserLanguageLevel> spokenLanguages;
 
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
@@ -49,7 +51,10 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    
+    public User() {
+        this.role = Role.STUDENT;
+    }
+
     public enum Role {
         STUDENT,
         TEACHER,

@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.exceptions.ResourceNotFound;
 import com.demo.language_booking.users.dto.UserCreateRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    @NotNull
+    @Transactional
     public User create(@Valid UserCreateRequest userCreateRequest) {
         User user = userMapper.mapToUser(userCreateRequest);
         return userRepository.save(user);
@@ -37,6 +40,8 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    @NotNull
+    @Transactional
     public User update(long id, @Valid UserCreateRequest user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
@@ -48,6 +53,7 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    @Transactional
     public void delete(long id) {
         User user = getById(id).orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
         user.setDeletedAt(LocalDateTime.now());

@@ -1,6 +1,6 @@
 package com.demo.language_booking.users;
 
-import com.demo.language_booking.common.exceptions.ResourceNotFound;
+import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -44,7 +44,7 @@ public class UserService {
     @Transactional
     public User update(long id, @Valid UserCreateRequest user) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
@@ -55,7 +55,7 @@ public class UserService {
 
     @Transactional
     public void delete(long id) {
-        User user = getById(id).orElseThrow(() -> new ResourceNotFound("User not found with id: " + id));
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
     }

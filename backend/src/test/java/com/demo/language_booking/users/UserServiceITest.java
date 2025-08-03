@@ -1,12 +1,13 @@
 package com.demo.language_booking.users;
 
-import com.demo.language_booking.common.exceptions.ResourceNotFound;
+import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 
 // Additional imports if needed
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Integration")
 @SpringBootTest
 public class UserServiceITest {
 
@@ -182,7 +184,7 @@ public class UserServiceITest {
                 .password("newPassword")
                 .build();
 
-        assertThrows(ResourceNotFound.class, () -> userService.update(Long.MAX_VALUE, updateRequest));
+        assertThrows(ResourceNotFoundException.class, () -> userService.update(Long.MAX_VALUE, updateRequest));
     }
 
     @DisplayName("Update a user with existing username fails")
@@ -291,7 +293,7 @@ public class UserServiceITest {
                 .password("newPassword")
                 .build();
 
-        assertThrows(ResourceNotFound.class, () -> userService.update(Long.MAX_VALUE, updateRequest));
+        assertThrows(ResourceNotFoundException.class, () -> userService.update(Long.MAX_VALUE, updateRequest));
     }
 
     @DisplayName("Delete a user")
@@ -312,6 +314,6 @@ public class UserServiceITest {
     @DisplayName("Delete a user with non-existent ID fails with an appropriate exception")
     @Test
     public void testDeleteUser_nonExistentId() {
-        assertThrows(ResourceNotFound.class, () -> userService.delete(Long.MAX_VALUE));
+        assertThrows(ResourceNotFoundException.class, () -> userService.delete(Long.MAX_VALUE));
     }
 }

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -40,8 +41,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<UserLanguageLevel> spokenLanguages;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
+    @ColumnDefault("'STUDENT'")
     private Role role = Role.STUDENT;
 
     @Column(name = "created_at", updatable = false)

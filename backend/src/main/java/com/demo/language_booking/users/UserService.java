@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -17,12 +18,14 @@ import java.util.Optional;
 @Service
 @Validated
 public class UserService {
-    
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @NotNull
     public List<User> getAll() {
@@ -33,6 +36,7 @@ public class UserService {
     @Transactional
     public User create(@Valid UserCreateRequest userCreateRequest) {
         User user = userMapper.mapToUser(userCreateRequest);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -48,7 +52,7 @@ public class UserService {
 
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(user.getPassword());
+        existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(existingUser);
     }

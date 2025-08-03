@@ -2,7 +2,10 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.Country;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,6 +15,9 @@ import java.util.Set;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User {
     @Id
@@ -35,10 +41,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<UserLanguageLevel> spokenLanguages;
 
-    
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role;
+    private Role role = Role.STUDENT;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
@@ -50,10 +55,6 @@ public class User {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    public User() {
-        this.role = Role.STUDENT;
-    }
 
     public enum Role {
         STUDENT,

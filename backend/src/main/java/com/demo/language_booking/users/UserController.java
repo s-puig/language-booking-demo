@@ -1,8 +1,5 @@
 package com.demo.language_booking.users;
 
-
-import com.demo.language_booking.common.Country;
-import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.demo.language_booking.users.dto.UserPublicResponse;
@@ -11,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -22,7 +17,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    private UserMapper userMapper = UserMapper.USER_MAPPER;
+    private final UserMapper userMapper = UserMapper.USER_MAPPER;
 
     @GetMapping
     public ResponseEntity<List<UserPublicResponse>> getAll() {

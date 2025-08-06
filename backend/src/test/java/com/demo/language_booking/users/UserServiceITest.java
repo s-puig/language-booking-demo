@@ -21,14 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("Integration")
 @SpringBootTest
 public class UserServiceITest {
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserRepository userRepository;
-
-    private final UserMapper userMapper = UserMapper.USER_MAPPER;
+    @Autowired
+    private UserMapper userMapper;
 
     @BeforeEach
     public void setUp() {

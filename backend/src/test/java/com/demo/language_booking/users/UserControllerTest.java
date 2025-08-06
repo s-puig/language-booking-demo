@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class)
 @Tag("Unit")
 public class UserControllerTest {
-
     @Autowired
     private ObjectMapper objectMapper;
 

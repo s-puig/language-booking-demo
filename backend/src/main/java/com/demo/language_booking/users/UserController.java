@@ -4,19 +4,17 @@ import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
-
-    @Autowired
-    private UserService userService;
-
+    private final UserService userService;
     private final UserMapper userMapper = UserMapper.USER_MAPPER;
 
     @GetMapping

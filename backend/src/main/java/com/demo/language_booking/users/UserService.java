@@ -5,7 +5,7 @@ import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -17,15 +17,18 @@ import java.util.Optional;
 
 @Service
 @Validated
+@AllArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public Optional<User> authenticate(String username, String unhashedPassword) {
+        Optional <User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) return Optional.empty();
+        if (!passwordEncoder.matches(unhashedPassword, user.get().getPassword())) return Optional.empty();
+        return user;
+    }
 
     @NotNull
     public List<User> getAll() {

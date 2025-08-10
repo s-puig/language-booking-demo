@@ -23,6 +23,13 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    public Optional<User> authenticate(String username, String unhashedPassword) {
+        Optional <User> user = userRepository.findByUsername(username);
+        if (user.isEmpty()) return Optional.empty();
+        if (!passwordEncoder.matches(unhashedPassword, user.get().getPassword())) return Optional.empty();
+        return user;
+    }
+
     @NotNull
     public List<User> getAll() {
         return userRepository.findAll();

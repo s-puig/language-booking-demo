@@ -1,6 +1,5 @@
 package com.demo.language_booking.auth.authentication;
 
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.LocatorAdapter;
 import io.jsonwebtoken.ProtectedHeader;
 import io.jsonwebtoken.io.Decoders;

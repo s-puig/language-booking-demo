@@ -9,20 +9,14 @@ import com.demo.language_booking.users.dto.UserPublicResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
-import javax.crypto.SecretKey;
 import java.io.StringReader;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -67,10 +61,9 @@ public class AuthService {
     @NonNull
     public UserPublicResponse parseToken(@NonNull String token) {
         if (!isTokenValid(token)) throw new InvalidAuthException("Token is invalid or expired");
-        Jwt jwt = Jwts.parser().keyLocator(authenticationConfig).build().parse(new StringReader(token));
+        Jwt<?, Claims> jwt = (Jwt<?, Claims>) Jwts.parser().keyLocator(authenticationConfig).build().parse(new StringReader(token));
 
-        String user = ((Claims) jwt.getPayload()).get("user", String.class);
-        UserPublicResponse userPublicResponse;
+        String user = jwt.getPayload().get("user", String.class);
         try {
             return objectMapper.readValue(user, UserPublicResponse.class);
         } catch (JsonProcessingException e) {
@@ -79,16 +72,17 @@ public class AuthService {
     }
 
     public boolean isTokenValid(@NonNull String token) {
-        Jwt jwt;
         try {
-            jwt = Jwts.parser()
+            Jwt<?, Claims> jwt = (Jwt<?, Claims>) Jwts.parser()
                     .requireIssuer(APP_ISSUER)
                     .keyLocator(authenticationConfig)
                     .build()
                     .parse(new StringReader(token));
+
+            Date expiration = jwt.getPayload().getExpiration();
+            return expiration.after(Date.from(Instant.now()));
         } catch (JwtException e) {
             throw new RuntimeException(e);
         }
-        return true;
     }
 }

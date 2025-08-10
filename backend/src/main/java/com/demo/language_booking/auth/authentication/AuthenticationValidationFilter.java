@@ -9,17 +9,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodIntrospector;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.Mapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -73,7 +70,7 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         if (!isEndpointSecured(request)) {
             filterChain.doFilter(request, response);
             return;
@@ -111,7 +108,7 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
 class AuthenticatedMethodFilter implements ReflectionUtils.MethodFilter {
 
     @Override
-    public boolean matches(Method method) {
+    public boolean matches(@NonNull Method method) {
         return method.isAnnotationPresent(Authenticated.class);
     }
 }
@@ -119,11 +116,11 @@ class AuthenticatedMethodFilter implements ReflectionUtils.MethodFilter {
 class RequestMappingMethodFilter implements ReflectionUtils.MethodFilter {
 
     @Override
-    public boolean matches(Method method) {
+    public boolean matches(@NonNull Method method) {
+        Annotation mappedMethod = null;
         try {
-            Annotation mapping = method.getAnnotation(Mapping.class);
-            return true;
+            mappedMethod = method.getAnnotation(Mapping.class);
         } catch (NullPointerException _) {}
-        return false;
+        return mappedMethod != null;
     }
 }

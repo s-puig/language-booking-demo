@@ -1,7 +1,5 @@
 package com.demo.language_booking.auth;
 
-
-import com.demo.language_booking.auth.LoginRequest;
 import com.demo.language_booking.common.exceptions.InvalidAuthException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

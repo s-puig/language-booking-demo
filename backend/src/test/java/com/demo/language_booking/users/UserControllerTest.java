@@ -2,7 +2,6 @@ package com.demo.language_booking.users;
 
 
 import com.demo.language_booking.SecurityConfig;
-import com.demo.language_booking.auth.AuthService;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;

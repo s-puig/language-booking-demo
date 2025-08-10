@@ -6,6 +6,7 @@ import io.jsonwebtoken.ProtectedHeader;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.crypto.SecretKey;
 import java.security.Key;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Configuration
 @Slf4j
@@ -24,7 +26,7 @@ public class AuthenticationConfig extends LocatorAdapter<Key> {
     }
     private static final String DEFAULT_SECRET_KEY = "lES1atQ25GLadTgGQxjHG9+9Ww6pAtNwZPsnzCp5yi5WpV9AYbycWrJ6H8fq/UU5";
 
-    //TODO: Get rid of this by using a hashmap in the future
+    //TODO: Get rid of this by using a hashmap/array in the future
     private SecretKey sessionSecret;
     private SecretKey refreshSecret;
 
@@ -60,6 +62,4 @@ public class AuthenticationConfig extends LocatorAdapter<Key> {
             throw new IllegalArgumentException(String.format("JWT KID header '%s' is invalid", kid));
         }
     }
-
-
 }

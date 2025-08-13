@@ -26,18 +26,18 @@ public class AuthorizationAspect {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Before("@annotation(AuthorizeCompilation)")
+    @Before("@annotation(Authorize)")
     public void authorizeEndpoint(JoinPoint joinPoint) {
         final Class<?> controllerClass = joinPoint.getClass();
         final Class<? extends IAuthPolicyHandler> classSecurityPolicy = controllerClass.isAnnotationPresent(AuthPolicy.class) ? controllerClass.getAnnotation(AuthPolicy.class).value() : NoPolicy.class;
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final Method method = signature.getMethod();
-        final AuthorizeCompilation authorizeCompilation = method.getAnnotation(AuthorizeCompilation.class);
+        final Authorize[] authorizes = method.getAnnotationsByType(Authorize.class);
         final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         final UserPublicResponse currentSession = (UserPublicResponse) request.getAttribute("session");
 
-        boolean allowed = Arrays.stream(authorizeCompilation.value()).anyMatch(condition -> {
-            if (currentSession.getRole() != condition.role()) return false;
+        boolean allowed = Arrays.stream(authorizes).anyMatch(condition -> {
+            if (currentSession.getRole() != condition.value()) return false;
             if (condition.requireOwnership()) {
                 final Long resourceId = extractResourceId(request, condition.resourceKey());
                 Class<? extends IAuthPolicyHandler> policy = Stream.of(condition.policy(), classSecurityPolicy)

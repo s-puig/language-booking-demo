@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.io.IOException;
@@ -104,25 +103,16 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
      * @return true if the endpoint is annotated with {@link Authenticated} and requires authentication, false otherwise
      * @throws RuntimeException if an internal error occurs fetching the handle of the request
      */
-    private boolean isEndpointSecured(HttpServletRequest request) throws RuntimeException {
+    private boolean isEndpointSecured(HttpServletRequest request) {
         HandlerExecutionChain handle;
         try {
           handle = handlerMapping.getHandler(request);
-            if(handle == null) throw new NullPointerException();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         if(handle == null) throw new NullPointerException();
         Method endpointMethod = ((HandlerMethod) handle.getHandler()).getMethod();
         return securedEndpoints.contains(endpointMethod.toGenericString());
-    }
-}
-
-class AuthenticatedMethodFilter implements ReflectionUtils.MethodFilter {
-
-    @Override
-    public boolean matches(@NonNull Method method) {
-        return method.isAnnotationPresent(Authenticated.class);
     }
 }
 

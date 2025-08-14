@@ -79,7 +79,6 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("I set auth stuff");
         if (!isEndpointSecured(request)) {
             filterChain.doFilter(request, response);
             return;

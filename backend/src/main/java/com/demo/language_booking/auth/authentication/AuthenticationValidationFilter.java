@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
@@ -39,6 +41,7 @@ import java.util.stream.Stream;
         matchIfMissing = true
 )
 public class AuthenticationValidationFilter extends OncePerRequestFilter {
+    static Pattern AUTH_HEADER = Pattern.compile("Bearer (\\S+)");
     /**
      * Immutable set of endpoint representations that require authentication validation.
      * This collection is built at application startup by scanning all controller classes and methods
@@ -84,6 +87,9 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
 
         String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (jwt == null) throw new NullPointerException("Session token is empty");
+        Matcher jwtMatcher = AUTH_HEADER.matcher(jwt);
+        if (!jwtMatcher.matches()) throw new RuntimeException("Incorrect auth format");
+        jwt = jwtMatcher.group(1);
         if (!authService.isTokenValid(jwt)) throw new InvalidAuthException("Session token expired");
 
 

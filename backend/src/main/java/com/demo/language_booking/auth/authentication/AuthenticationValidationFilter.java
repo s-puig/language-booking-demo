@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodIntrospector;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -58,8 +60,9 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
         Stream<Method> methodsAnnotated = Arrays.stream(applicationContext.getBeanNamesForAnnotation(Controller.class))
                 .map(beanName -> applicationContext.getType(beanName, false))
                 .filter(Objects::nonNull)
-                .flatMap(beanClass -> MethodIntrospector.selectMethods(beanClass, new AuthenticatedMethodFilter())
-                        .stream());
+                .flatMap(beanClass -> Arrays.stream(beanClass.getDeclaredMethods()))
+                .filter(method -> AnnotatedElementUtils.hasAnnotation(method, Authenticated.class));
+        // TODO Fix stream below too to work with meta annotations.
         Stream<Method> methodsAnnotatedFromClass = applicationContext.getBeansWithAnnotation(Authenticated.class).keySet()
                 .stream()
                 .map(beanName -> applicationContext.getType(beanName, false))
@@ -79,11 +82,13 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt = request.getHeader("Authorization");
+        String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (jwt == null) throw new NullPointerException("Session token is empty");
         Matcher jwtMatcher = AUTH_HEADER.matcher(jwt);
         if (!jwtMatcher.matches()) throw new RuntimeException("Incorrect auth format");
         jwt = jwtMatcher.group(1);
         if (!authService.isTokenValid(jwt)) throw new InvalidAuthException("Session token expired");
+
 
         UserPublicResponse userSession = authService.parseToken(jwt);
         request.setAttribute("session", userSession);
@@ -98,7 +103,7 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
      * @return true if the endpoint is annotated with {@link Authenticated} and requires authentication, false otherwise
      * @throws RuntimeException if an internal error occurs fetching the handle of the request
      */
-    private boolean isEndpointSecured(HttpServletRequest request) throws RuntimeException {
+    private boolean isEndpointSecured(HttpServletRequest request) {
         HandlerExecutionChain handle;
         try {
           handle = handlerMapping.getHandler(request);
@@ -108,14 +113,6 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
         if(handle == null) throw new NullPointerException();
         Method endpointMethod = ((HandlerMethod) handle.getHandler()).getMethod();
         return securedEndpoints.contains(endpointMethod.toGenericString());
-    }
-}
-
-class AuthenticatedMethodFilter implements ReflectionUtils.MethodFilter {
-
-    @Override
-    public boolean matches(@NonNull Method method) {
-        return method.isAnnotationPresent(Authenticated.class);
     }
 }
 

@@ -14,9 +14,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import javax.crypto.SecretKey;
 import java.io.StringReader;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -29,7 +32,7 @@ public class AuthService {
     private final AuthenticationConfig authenticationConfig;
     private final ObjectMapper objectMapper;
     private final UserMapper userMapper;
-    
+
     public String login(@Valid LoginRequest login){
         User user = userService.authenticate(login.getUsername(), login.getPassword()).orElseThrow(() -> new InvalidAuthException("Invalid user/password"));
         return generateSessionToken(user);

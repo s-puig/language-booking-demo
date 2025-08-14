@@ -26,12 +26,11 @@ public class AuthorizationAspect {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Before("@annotation(Authorize)")
+    @Before("@annotation(Authorize) || @annotation(AuthorizeCompilation)")
     public void authorizeEndpoint(JoinPoint joinPoint) {
-        final Class<?> controllerClass = joinPoint.getClass();
-        final Class<? extends IAuthPolicyHandler> classSecurityPolicy = controllerClass.isAnnotationPresent(AuthPolicy.class) ? controllerClass.getAnnotation(AuthPolicy.class).value() : NoPolicy.class;
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final Method method = signature.getMethod();
+        final Class<? extends IAuthPolicyHandler> classSecurityPolicy = method.getDeclaringClass().isAnnotationPresent(AuthPolicy.class) ? method.getDeclaringClass().getAnnotation(AuthPolicy.class).value() : NoPolicy.class;
         final Authorize[] authorizes = method.getAnnotationsByType(Authorize.class);
         final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         final UserPublicResponse currentSession = (UserPublicResponse) request.getAttribute("session");

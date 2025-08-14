@@ -61,8 +61,7 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
         Stream<Method> methodsAnnotated = Arrays.stream(applicationContext.getBeanNamesForAnnotation(Controller.class))
                 .map(beanName -> applicationContext.getType(beanName, false))
                 .filter(Objects::nonNull)
-                .flatMap(beanClass -> Arrays.stream(beanClass.getMethods()))
-                //.flatMap(beanClass -> MethodIntrospector.selectMethods(beanClass, new AuthenticatedMethodFilter())
+                .flatMap(beanClass -> Arrays.stream(beanClass.getDeclaredMethods()))
                 .filter(method -> AnnotatedElementUtils.hasAnnotation(method, Authenticated.class));
         // TODO Fix stream below too to work with meta annotations.
         Stream<Method> methodsAnnotatedFromClass = applicationContext.getBeansWithAnnotation(Authenticated.class).keySet()

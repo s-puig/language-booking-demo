@@ -1,5 +1,7 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.auth.authorization.AuthPolicy;
+import com.demo.language_booking.auth.authorization.Authorize;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.demo.language_booking.users.dto.UserPublicResponse;
@@ -12,11 +14,13 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
+@AuthPolicy(UserSecurityPolicy.class)
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper = UserMapper.USER_MAPPER;
 
+    @Authorize(User.Role.ADMIN)
     @GetMapping
     public ResponseEntity<List<UserPublicResponse>> getAll() {
         List<User> users = userService.getAll();
@@ -42,6 +46,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Authorize(User.Role.ADMIN)
+    @Authorize(value = User.Role.STUDENT, requireOwnership = true)
     @PutMapping("/{id}")
     public ResponseEntity<UserPublicResponse> update(@PathVariable Long id, @RequestBody @Valid UserCreateRequest userCreateRequest) {
         User updatedUser = userService.update(id, userCreateRequest);
@@ -49,6 +55,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Authorize(User.Role.ADMIN)
+    @Authorize(value = User.Role.STUDENT, requireOwnership = true)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         userService.delete(id);

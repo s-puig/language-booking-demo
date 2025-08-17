@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @AuthPolicy(UserSecurityPolicy.class)
-@RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper = UserMapper.USER_MAPPER;

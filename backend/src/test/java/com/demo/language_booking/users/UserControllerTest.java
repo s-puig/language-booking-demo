@@ -50,7 +50,7 @@ public class UserControllerTest {
     @DisplayName("Get all users")
     @Test
     public void getAllUsers() throws Exception {
-        mockMvc.perform(get("/api/users")
+        mockMvc.perform(get("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
@@ -73,7 +73,7 @@ public class UserControllerTest {
 
         Mockito.when(userService.create(Mockito.any(UserCreateRequest.class))).thenReturn(mockUser);
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -91,7 +91,7 @@ public class UserControllerTest {
                 .username("")
                 .build();
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -106,7 +106,7 @@ public class UserControllerTest {
                 .email("invalid-email")
                 .build();
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -121,7 +121,7 @@ public class UserControllerTest {
                 .password("")
                 .build();
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -141,7 +141,7 @@ public class UserControllerTest {
 
         Mockito.when(userService.getById(Mockito.anyLong())).thenReturn(Optional.of(mockUser));
 
-        mockMvc.perform(get("/api/users/1")
+        mockMvc.perform(get("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -156,7 +156,7 @@ public class UserControllerTest {
     public void getUserByIdNotFound() throws Exception {
         Mockito.when(userService.getById(Mockito.anyLong())).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/users/1")
+        mockMvc.perform(get("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
@@ -184,7 +184,7 @@ public class UserControllerTest {
 
         Mockito.when(userService.getAll()).thenReturn(users);
 
-        mockMvc.perform(get("/api/users")
+        mockMvc.perform(get("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -201,7 +201,7 @@ public class UserControllerTest {
 
         Mockito.when(userService.getAll()).thenReturn(users);
 
-        mockMvc.perform(get("/api/users")
+        mockMvc.perform(get("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -229,7 +229,7 @@ public class UserControllerTest {
 
         Mockito.when(userService.update(Mockito.anyLong(), Mockito.any(UserCreateRequest.class))).thenReturn(mockUser);
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -252,7 +252,7 @@ public class UserControllerTest {
         Mockito.when(userService.update(Mockito.anyLong(), Mockito.any(UserCreateRequest.class)))
                 .thenThrow(new ResourceNotFoundException("User not found with id: 1"));
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -269,7 +269,7 @@ public class UserControllerTest {
                 .password("")
                 .build();
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -280,7 +280,7 @@ public class UserControllerTest {
     @DisplayName("Delete a user")
     @Test
     public void deleteUser() throws Exception {
-        mockMvc.perform(delete("/api/users/1")
+        mockMvc.perform(delete("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -293,7 +293,7 @@ public class UserControllerTest {
         Mockito.doThrow(new ResourceNotFoundException("User not found with id: 1"))
                 .when(userService).delete(Mockito.anyLong());
 
-        mockMvc.perform(delete("/api/users/1")
+        mockMvc.perform(delete("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 

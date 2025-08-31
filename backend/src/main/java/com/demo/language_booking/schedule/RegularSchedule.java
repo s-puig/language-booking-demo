@@ -7,10 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.BitSet;
 
 @Entity
@@ -21,17 +22,21 @@ import java.util.BitSet;
 @Table(name = "regular_schedule")
 public class RegularSchedule {
     @Id
-    @OneToOne
+    @Column(name = "tutor_id")
+    private Long id;
+
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id")
     private User tutor;
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(nullable = false, length = 64)
-    private String timezone;
+    private ZoneId timezone;
 
     @Column(nullable = false, columnDefinition = "BINARY(21)")
     BitSet availableTime;

@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -27,12 +26,6 @@ public class ScheduleServiceITest {
 
     @Autowired
     private ScheduleService scheduleService;
-
-    @Autowired
-    private RegularScheduleRepository regularScheduleRepository;
-
-    @Autowired
-    private ScheduleMapper scheduleMapper;
 
     @Autowired
     private UserRepository userRepository;

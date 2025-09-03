@@ -1,12 +1,9 @@
 package com.demo.language_booking.schedule;
 
 import com.demo.language_booking.common.IScheduleAvailability;
-import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.schedule.dto.ScheduleRequest;
 import com.demo.language_booking.users.User;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.Optional;
 

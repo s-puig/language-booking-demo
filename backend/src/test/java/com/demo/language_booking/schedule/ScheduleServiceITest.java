@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
-public class ScheduleServiceITTest {
+public class ScheduleServiceITest {
 
     @Autowired
     private ScheduleService scheduleService;

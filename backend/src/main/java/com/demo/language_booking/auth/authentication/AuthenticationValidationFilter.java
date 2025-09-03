@@ -124,7 +124,7 @@ class RequestMappingMethodFilter implements ReflectionUtils.MethodFilter {
         Annotation mappedMethod = null;
         try {
             mappedMethod = method.getAnnotation(Mapping.class);
-        } catch (NullPointerException _) {}
+        } catch (NullPointerException ignored) {}
         return mappedMethod != null;
     }
 }

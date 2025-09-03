@@ -5,9 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ScheduleSecurityPolicy implements IAuthPolicyHandler {
-
     @Override
     public long getResourceOwner(long resourceId) {
-        throw new RuntimeException("Not implemented");
+        return resourceId;
     }
 }

@@ -110,7 +110,8 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        if(handle == null) throw new NullPointerException();
+        // Null handle can only occur if the endpoint doesn't exist. Return and forward it to Spring.
+        if(handle == null) return false;
         Method endpointMethod = ((HandlerMethod) handle.getHandler()).getMethod();
         return securedEndpoints.contains(endpointMethod.toGenericString());
     }

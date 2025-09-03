@@ -1,5 +1,6 @@
 package com.demo.language_booking.schedule;
 
+import com.demo.language_booking.auth.CurrentSession;
 import com.demo.language_booking.schedule.dto.ScheduleRequest;
 import com.demo.language_booking.schedule.dto.Schedule;
 import com.demo.language_booking.users.User;
@@ -16,6 +17,8 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
+    private final ScheduleMapper scheduleMapper;
+
     @GetMapping("/{id}")
     public ResponseEntity<Schedule> getScheduleById(@PathVariable long id) {
         Optional<RegularSchedule> schedule = scheduleService.findById(id);
@@ -24,11 +27,9 @@ public class ScheduleController {
     }
 
     @PostMapping
-    public ResponseEntity<Schedule> createSchedule(@RequestBody ScheduleRequest request) {
-        User user = new User(); // This is a placeholder - actual implementation should get current user
-        user.setId(1L); // This is a placeholder - actual implementation should get current user
+    public ResponseEntity<Schedule> createSchedule(CurrentSession user, @RequestBody ScheduleRequest request) {
         RegularSchedule createdSchedule = scheduleService.create(user.getId(), request);
-        return ResponseEntity.ok(scheduleService.toSchedule(createdSchedule));
+        return ResponseEntity.ok(scheduleMapper.toSchedule(createdSchedule));
     }
 
     @DeleteMapping("/{id}")

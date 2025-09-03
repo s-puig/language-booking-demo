@@ -11,7 +11,7 @@ This project is designed to showcase best practices in API design, documentation
 - **Authentication**: JWT using JJWT dependency.
 - **Testing**: JUnit and Mockito
 - **~Open API + Swagger~**
-- **~Payment processing**: Stripe API~
+- ~**Payment processing**: Stripe API~
 - Others:
   - **MapStruct** for mapping preprocessing of entities and their associated DTOs
   - **Lombok** for class method preprocessing like getter, setters, constructors, builders..
@@ -25,14 +25,12 @@ This project is designed to showcase best practices in API design, documentation
 _I'm aware of Spring Security, just wanted to play around with Java Annotation/Reflection API and Spring Aspect programming._
   - [x] Authentication
   - [x] Authorization
-- [ ] Schedule
+- [x] Schedule
   - Manage Tutor weekly schedule
   - [ ] Week-specific schedule
 - [ ] Booking
   - Booking of lessons
   - [ ] (Opt) Email notification on booking success
-- [ ] Availability
-  - Week lesson availability using schedule and booking services.
 - [ ] Payment
 - [ ] Lesson Offerings
   - Tutor lesson offerings types, prices and limits (e.g. trial lessons) 

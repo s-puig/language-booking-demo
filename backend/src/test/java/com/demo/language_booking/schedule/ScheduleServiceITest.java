@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -45,7 +47,7 @@ public class ScheduleServiceITest {
     ScheduleRequest.ScheduleRequestBuilder defaultScheduleBuilder() {
         boolean[][] availableTime = new boolean[7][24];
         for (boolean[] day : availableTime) {
-            Arrays.fill(day, true);
+            Arrays.fill(day, false);
         }
         return ScheduleRequest.builder().timezone("UTC").availableTime(availableTime);
     }
@@ -115,6 +117,28 @@ public class ScheduleServiceITest {
         scheduleService.delete(user.getId());
 
         assertFalse(scheduleService.findById(user.getId()).isPresent());
+    }
+
+    @Test
+    public void isTimeSlotAvailableTest() {
+        User user = defaultUserBuilder().build();
+        user = userRepository.save(user);
+        ScheduleRequest request = defaultScheduleBuilder().build();
+        RegularSchedule createdSchedule = scheduleService.create(user.getId(), request);
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2025, 1, 1, 10, 0, 0, 0, createdSchedule.getTimezone());
+
+        // Prove the time slot is unavailable
+        assertFalse(scheduleService.isTimeSlotAvailable(user.getId(), zonedDateTime.toInstant()));
+
+        // Modify the schedule to make the time slot available
+        boolean[][] newAvailableTime = request.getAvailableTime();
+        int idxDayOfWeek = zonedDateTime.getDayOfWeek().getValue()-1;
+        newAvailableTime[idxDayOfWeek][zonedDateTime.getHour()] = true;
+        request.setAvailableTime(newAvailableTime);
+        scheduleService.update(user.getId(), request);
+
+        // Time slot should now be available
+        assertTrue(scheduleService.isTimeSlotAvailable(user.getId(), zonedDateTime.toInstant()));
     }
 
 

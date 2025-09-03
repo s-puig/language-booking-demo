@@ -111,7 +111,6 @@
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<optional>true</optional>
 							<version>1.6.2</version>
 						</path>
 					</annotationProcessorPaths>

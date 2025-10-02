@@ -1,5 +1,6 @@
 package com.demo.language_booking.auth;
 
+import com.demo.language_booking.common.exceptions.UnavailableSessionException;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
@@ -19,10 +20,10 @@ public class MvcAuthUserResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(@NonNull MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) throws Exception {
+                                  WebDataBinderFactory binderFactory) {
         HttpServletRequest httpRequest =(HttpServletRequest) webRequest.getNativeRequest();
         UserPublicResponse userSession = (UserPublicResponse) httpRequest.getAttribute("session");
-        if (userSession == null) throw new Exception("Active session not found");
+        if (userSession == null) throw new UnavailableSessionException("Active session not found");
         // TODO: This should use a mapper instead of being done by hand
         return CurrentSession.builder()
                 .id(userSession.getId())

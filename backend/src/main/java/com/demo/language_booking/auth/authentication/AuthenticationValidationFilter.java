@@ -85,7 +85,7 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
         String jwt = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (jwt == null) throw new NullPointerException("Session token is empty");
         Matcher jwtMatcher = AUTH_HEADER.matcher(jwt);
-        if (!jwtMatcher.matches()) throw new RuntimeException("Incorrect auth format");
+        if (!jwtMatcher.matches()) throw new InvalidAuthException("Incorrect auth format");
         jwt = jwtMatcher.group(1);
         if (!authService.isTokenValid(jwt)) throw new InvalidAuthException("Session token expired");
 

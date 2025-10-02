@@ -1,5 +1,7 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.common.CEFRLevel;
+import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.transaction.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Validated
@@ -64,6 +67,26 @@ public class UserService {
     public void delete(long id) {
         User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public User addLanguage(long id, @NotNull Language language, @NotNull CEFRLevel level) {
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
+        userLanguageLevel.setUser(user);
+        userLanguageLevel.setLanguage(language);
+        userLanguageLevel.setLevel(level);
+        user.getSpokenLanguages().add(userLanguageLevel);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeLanguage(long id, @NotNull Language language) {
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        Set<UserLanguageLevel> userLanguages = user.getSpokenLanguages();
+        userLanguages.removeIf(userLanguageLevel -> userLanguageLevel.getLanguage().equals(language));
         userRepository.save(user);
     }
 }

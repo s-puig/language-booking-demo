@@ -1,5 +1,7 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.common.CEFRLevel;
+import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 
 // Additional imports if needed
@@ -309,9 +311,62 @@ public class UserServiceITest {
         assertNotNull(result.get().getDeletedAt());
     }
 
-    @DisplayName("Delete a user with non-existent ID fails with an appropriate exception")
+    @DisplayName("Delete a user with non-existent ID fails with ResourceNotFoundException")
     @Test
     public void testDeleteUser_nonExistentId() {
         assertThrows(ResourceNotFoundException.class, () -> userService.delete(Long.MAX_VALUE));
+    }
+
+    @DisplayName("Add a language to a user")
+    @Test
+    public void testAddLanguage() {
+        UserCreateRequest request = defaultCreateUserRequestBuilder()
+                .build();
+        Language spokenLanguage = Language.fromCode("EN");
+        CEFRLevel languageLevel = CEFRLevel.B2;
+        User createdUser = userRepository.save(userMapper.mapToUser(request));
+        Long userId = createdUser.getId();
+
+        User user = userService.addLanguage(userId, spokenLanguage, languageLevel);
+        assertFalse(user.getSpokenLanguages().isEmpty());
+
+        UserLanguageLevel userLanguageLevel = user.getSpokenLanguages().stream().findFirst().get();
+        assertNotNull(user);
+        assertEquals(spokenLanguage, userLanguageLevel.getLanguage());
+        assertEquals(languageLevel, userLanguageLevel.getLevel());
+    }
+
+    @DisplayName("Add a language to a non-existent user throws ResourceNotFoundException")
+    @Test
+    public void testAddLanguage_nonExistentUser() {
+        assertThrows(ResourceNotFoundException.class, () -> userService.addLanguage(Long.MAX_VALUE, Language.fromCode("EN"), CEFRLevel.valueOf("B2")));
+    }
+
+    @DisplayName("Remove a language from a user")
+    @Test
+    public void testRemoveLanguage() {
+        UserCreateRequest request = defaultCreateUserRequestBuilder()
+                .build();
+        Language spokenLanguage = Language.fromCode("EN");
+        CEFRLevel languageLevel = CEFRLevel.B2;
+        User createdUser = userRepository.save(userMapper.mapToUser(request));
+        Long userId = createdUser.getId();
+
+        User user = userService.addLanguage(userId, spokenLanguage, languageLevel);
+        assertFalse(user.getSpokenLanguages().isEmpty());
+
+        userService.removeLanguage(userId, spokenLanguage);
+
+        Optional<UserLanguageLevel> result = userRepository.findById(userId).orElseThrow().getSpokenLanguages()
+                .stream()
+                .filter(lang -> lang.getLanguage() == spokenLanguage)
+                .findFirst();
+        assertFalse(result.isPresent());
+    }
+
+    @DisplayName("Remove a language from a non-existent user throws ResourceNotFoundException")
+    @Test
+    public void testRemoveLanguage_nonExistentUser() {
+        assertThrows(ResourceNotFoundException.class, () -> userService.removeLanguage(Long.MAX_VALUE, Language.fromCode("EN")));
     }
 }

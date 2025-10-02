@@ -75,6 +75,7 @@ public class UserService {
     public User addLanguage(long id, @NotNull Language language, @NotNull CEFRLevel level) {
         User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
+        // TODO: Remove this iteration instead of just finding the key
         if(user.getSpokenLanguages().stream().anyMatch((userLanguage) -> userLanguage.getLanguage() == language)) throw new DuplicateLanguageException("User already has a language: " + language.getCode());
 
         UserLanguageLevel userLanguageLevel = new UserLanguageLevel();

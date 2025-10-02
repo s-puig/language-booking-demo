@@ -1,5 +1,7 @@
 package com.demo.language_booking.auth.authorization;
 
+import com.demo.language_booking.common.exceptions.InvalidPolicyHandlerException;
+import com.demo.language_booking.common.exceptions.MalformedAuthorizeAnnotationException;
 import com.demo.language_booking.common.exceptions.PermissionDeniedException;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,11 +39,16 @@ public class AuthorizationAspect {
         boolean allowed = Arrays.stream(authorizes).anyMatch(condition -> {
             if (currentSession.getRole() != condition.value()) return false;
             if (condition.requireOwnership()) {
-                final Long resourceId = extractResourceId(request, condition.resourceKey());
+                final long resourceId;
+                try {
+                    resourceId = extractResourceId(request, condition.resourceKey());
+                } catch (Exception e) {
+                    throw new MalformedAuthorizeAnnotationException("The authorization annotation resource ownership path is empty, malformed or ambiguous");
+                }
                 Class<? extends IAuthPolicyHandler> policy = Stream.of(condition.policy(), classSecurityPolicy)
                         .filter(candidatePolicy -> candidatePolicy != NoPolicy.class)
                         .findFirst()
-                        .orElseThrow(RuntimeException::new);
+                        .orElseThrow(() -> new InvalidPolicyHandlerException("Endpoint is missing a policy handler"));
                 return applicationContext.getBean(policy).getResourceOwner(resourceId) == currentSession.getId();
             }
 
@@ -51,7 +58,7 @@ public class AuthorizationAspect {
         if (!allowed) throw new PermissionDeniedException("Access denied. Authenticated user lacks permission.");
     }
 
-    private Long extractResourceId(HttpServletRequest request, String key) {
+    private Long extractResourceId(HttpServletRequest request, String key) throws Exception {
         Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (key != null && !key.isBlank()) {
             String resourceId = pathVariables.get(key);

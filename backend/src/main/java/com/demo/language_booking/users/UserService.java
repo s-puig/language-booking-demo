@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Language;
+import com.demo.language_booking.common.exceptions.DuplicateLanguageException;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.transaction.Transactional;
@@ -73,6 +74,8 @@ public class UserService {
     @Transactional
     public User addLanguage(long id, @NotNull Language language, @NotNull CEFRLevel level) {
         User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if(user.getSpokenLanguages().stream().anyMatch((userLanguage) -> userLanguage.getLanguage() == language)) throw new DuplicateLanguageException("User already has a language: " + language.getCode());
 
         UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
         userLanguageLevel.setUser(user);

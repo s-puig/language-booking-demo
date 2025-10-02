@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Language;
+import com.demo.language_booking.common.exceptions.DuplicateLanguageException;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 
 // Additional imports if needed
@@ -340,6 +341,23 @@ public class UserServiceITest {
     @Test
     public void testAddLanguage_nonExistentUser() {
         assertThrows(ResourceNotFoundException.class, () -> userService.addLanguage(Long.MAX_VALUE, Language.fromCode("EN"), CEFRLevel.valueOf("B2")));
+    }
+
+    @DisplayName("Add the same language twice to a user should fail")
+    @Test
+    public void testAddLanguageTwiceShouldThrow() {
+        UserCreateRequest request = defaultCreateUserRequestBuilder()
+                .build();
+        Language spokenLanguage = Language.fromCode("EN");
+        CEFRLevel languageLevel = CEFRLevel.B2;
+        User createdUser = userRepository.save(userMapper.mapToUser(request));
+        Long userId = createdUser.getId();
+
+        User user = userService.addLanguage(userId, spokenLanguage, languageLevel);
+        assertFalse(user.getSpokenLanguages().isEmpty());
+        CEFRLevel otherLevel = CEFRLevel.A1;
+        assertNotEquals(otherLevel, languageLevel);
+        assertThrows(DuplicateLanguageException.class, () -> userService.addLanguage(userId, spokenLanguage, otherLevel));
     }
 
     @DisplayName("Remove a language from a user")

@@ -1,7 +1,6 @@
 package com.demo.language_booking.users.dto;
 
-import java.time.LocalDateTime;
-
+import com.demo.language_booking.common.Country;
 import com.demo.language_booking.users.User.Role;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +12,5 @@ public class UserPublicResponse {
     private String username;
     private String email;
     private Role role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
+    private Country country;
 }

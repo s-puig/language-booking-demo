@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 
 import com.demo.language_booking.SecurityConfig;
+import com.demo.language_booking.common.Country;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +45,8 @@ public class UserControllerTest {
         return UserCreateRequest.builder()
                 .username("defaultUser")
                 .email("default@example.com")
-                .password("defaultPassword");
+                .password("defaultPassword")
+                .countryCode(Country.DE);
     }
 
     @DisplayName("Get all users")

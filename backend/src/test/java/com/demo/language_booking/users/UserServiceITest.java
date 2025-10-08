@@ -3,6 +3,7 @@ package com.demo.language_booking.users;
 import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.DuplicateLanguageException;
+import com.demo.language_booking.common.Country;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 
 // Additional imports if needed
@@ -40,7 +41,8 @@ public class UserServiceITest {
         return UserCreateRequest.builder()
                 .username("defaultUser")
                 .email("default@example.com")
-                .password("defaultPassword");
+                .password("defaultPassword")
+                .countryCode(Country.DE);
     }
 
     @DisplayName("Get all users returns empty list if no users are present")

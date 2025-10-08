@@ -2,7 +2,9 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.auth.authorization.AuthPolicy;
 import com.demo.language_booking.auth.authorization.Authorize;
+import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
+import com.demo.language_booking.users.dto.LanguageCreateRequest;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import jakarta.validation.Valid;
@@ -35,7 +37,7 @@ public class UserController {
         User savedUser = userService.create(userCreateRequest);
         UserPublicResponse response = userMapper.mapToUserPublicResponse(savedUser);
         return ResponseEntity.created(
-                java.net.URI.create("/api/users/" + savedUser.getId())
+                java.net.URI.create("/api/v1/users/" + savedUser.getId())
         ).body(response);
     }
 
@@ -60,6 +62,23 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Authorize(User.Role.ADMIN)
+    @Authorize(value = User.Role.STUDENT, requireOwnership = true)
+    @PostMapping("/{id}/lang")
+    public ResponseEntity<UserPublicResponse> addLanguageToUser(@PathVariable Long id, @RequestBody @Valid LanguageCreateRequest languageCreateRequest) {
+        User updatedUser = userService.addLanguage(id, languageCreateRequest.getLanguage(), languageCreateRequest.getLevel());
+        return ResponseEntity.created(java.net.URI.create("/api/v1/users/{}/lang/{}".formatted(id, languageCreateRequest.getLanguage().getCode()))).body(userMapper.mapToUserPublicResponse(updatedUser));
+    }
+
+    @Authorize(User.Role.ADMIN)
+    @Authorize(value = User.Role.STUDENT, requireOwnership = true)
+    @DeleteMapping("/{id}/lang/{lang}")
+    public ResponseEntity<?> deleteLanguageToUser(@PathVariable Long id, @PathVariable String lang) {
+        Language language = Language.fromCode(lang);
+        userService.removeLanguage(id, language);
         return ResponseEntity.noContent().build();
     }
 }

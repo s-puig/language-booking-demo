@@ -1,6 +1,7 @@
 package com.demo.language_booking.schedule;
 
 
+import com.demo.language_booking.common.Country;
 import com.demo.language_booking.schedule.dto.ScheduleRequest;
 import com.demo.language_booking.users.User;
 import com.demo.language_booking.users.UserRepository;
@@ -34,7 +35,11 @@ public class ScheduleServiceITest {
     private ObjectMapper objectMapper;
 
     User.UserBuilder defaultUserBuilder() {
-        return User.builder().username("test").email("test@test.net").password("Test1234");
+        return User.builder()
+                .username("test")
+                .email("test@test.net")
+                .password("Test1234")
+                .countryCode(Country.DE);
     }
 
     ScheduleRequest.ScheduleRequestBuilder defaultScheduleBuilder() {

@@ -1,6 +1,8 @@
 package com.demo.language_booking.users.dto;
 
 
+import com.demo.language_booking.common.Country;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.Email;
@@ -16,4 +18,6 @@ public class UserCreateRequest {
     private String email;
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
+    @NotNull(message = "Country code cannot be null")
+    private Country countryCode;
 }

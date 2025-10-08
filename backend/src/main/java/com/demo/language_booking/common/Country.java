@@ -1,10 +1,16 @@
 package com.demo.language_booking.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 import java.util.Optional;
 
 // Country codes were done via ChatGPT. It's very likely some are wrong, but it should be good enough for a demo.
+
+/**
+ * Represents the supported countries
+ */
 @Getter
 public enum Country {
     AF("Afghanistan"),
@@ -266,11 +272,27 @@ public enum Country {
     /**
      * Get the official ISO 3166-1 alpha-2 country code.
      */
+    @JsonValue
     public String getCode() {
         return name();
     }
 
-    public static Optional<Country> fromCode(String code) {
+    /**
+     * Get the country from a code.
+     * @param code a string ISO 3166-1 alpha-2 country code.
+     * @return the corresponding {@link Country} or null if the code is invalid.
+     */
+    @JsonCreator
+    public static Country fromCode(String code) {
+        return fromCodeOptional(code).orElse(null);
+    }
+
+    /**
+     * Get the country from a code.
+     * @param code a string ISO 3166-1 alpha-2 country code.
+     * @return the corresponding {@link Optional} {@link Country}.
+     */
+    public static Optional<Country> fromCodeOptional(String code) {
         if (code == null) return Optional.empty();
         try {
             return Optional.of(Country.valueOf(code.toUpperCase()));

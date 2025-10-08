@@ -35,7 +35,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "country_code", length = 2)
+    @Column(name = "country_code", length = 2, nullable = false)
     private Country countryCode;
 
     @OneToMany(mappedBy = "user")

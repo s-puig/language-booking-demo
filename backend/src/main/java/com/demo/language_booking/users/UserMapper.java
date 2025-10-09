@@ -1,6 +1,7 @@
 package com.demo.language_booking.users;
 
 import com.demo.language_booking.users.dto.UserCreateRequest;
+import com.demo.language_booking.users.dto.UserLanguageDto;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -12,4 +13,5 @@ public interface UserMapper {
 
     User mapToUser(UserCreateRequest userCreateRequest);
     UserPublicResponse mapToUserPublicResponse(User user);
+    UserLanguageDto mapToUserLanguageDto(UserLanguageLevel userLanguageLevel);
 }

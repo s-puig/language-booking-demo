@@ -1,5 +1,8 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.common.CEFRLevel;
+import com.demo.language_booking.common.Language;
+import com.demo.language_booking.common.exceptions.DuplicateLanguageException;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import jakarta.transaction.Transactional;
@@ -14,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Validated
@@ -23,8 +27,9 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @NotNull
     public Optional<User> authenticate(String username, String unhashedPassword) {
-        Optional <User> user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) return Optional.empty();
         if (!passwordEncoder.matches(unhashedPassword, user.get().getPassword())) return Optional.empty();
         return user;
@@ -65,5 +70,43 @@ public class UserService {
         User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    @NotNull
+    @Transactional
+    public User addLanguage(long id, @NotNull Language language, @NotNull CEFRLevel level) {
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        // TODO: Remove this iteration instead of just finding the key
+        if (user.getSpokenLanguages().stream().anyMatch((userLanguage) -> userLanguage.getLanguage() == language))
+            throw new DuplicateLanguageException("User already has a language: " + language.getCode());
+
+        UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
+        userLanguageLevel.setUser(user);
+        userLanguageLevel.setLanguage(language);
+        userLanguageLevel.setLevel(level);
+        user.getSpokenLanguages().add(userLanguageLevel);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeLanguage(long id, @NotNull Language language) {
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        Set<UserLanguageLevel> userLanguages = user.getSpokenLanguages();
+        if (!userLanguages.removeIf(userLanguageLevel -> userLanguageLevel.getLanguage().equals(language)))
+            throw new ResourceNotFoundException("User with id '%s' does not have language '%s'".formatted(id, language.getCode()));
+        userRepository.save(user);
+    }
+
+    @NotNull
+    @Transactional
+    public User updateLanguage(long id, @NotNull Language language, @NotNull CEFRLevel level) {
+        User user = getById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        UserLanguageLevel existingLanguage = user.getSpokenLanguages().stream()
+                .filter(userLanguageLevel -> userLanguageLevel.getLanguage() == language)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("User does not have language: " + language.getCode()));
+        existingLanguage.setLevel(level);
+        return userRepository.save(user);
     }
 }

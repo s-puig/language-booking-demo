@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -22,7 +23,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "user_id")
     private Long id;
 
     @Column(name = "username", nullable = false, unique = true)
@@ -38,8 +39,8 @@ public class User {
     @Column(name = "country_code", length = 2, nullable = false)
     private Country countryCode;
 
-    @OneToMany(mappedBy = "user")
-    private Set<UserLanguageLevel> spokenLanguages;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<UserLanguageLevel> spokenLanguages = new HashSet<>();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

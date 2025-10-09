@@ -2,9 +2,13 @@ package com.demo.language_booking.users;
 
 
 import com.demo.language_booking.SecurityConfig;
+import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Country;
+import com.demo.language_booking.common.Language;
+import com.demo.language_booking.common.StringToLanguageConverter;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
+import com.demo.language_booking.users.dto.UserLanguageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -12,14 +16,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,6 +49,19 @@ public class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @TestConfiguration
+    static class UserControllerTestConfiguration implements WebMvcConfigurer {
+        @Bean
+        public StringToLanguageConverter stringToLanguageConverter() {
+            return new StringToLanguageConverter();
+        }
+
+        @Override
+        public void addFormatters(org.springframework.format.FormatterRegistry registry) {
+            registry.addConverter(stringToLanguageConverter());
+        }
+    }
+
     private static UserCreateRequest.UserCreateRequestBuilder defaultCreateUserRequestBuilder() {
         return UserCreateRequest.builder()
                 .username("defaultUser")
@@ -57,8 +78,6 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
-
-
 
     @DisplayName("Create a user")
     @Test
@@ -300,5 +319,127 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
 
         Mockito.verify(userService).delete(1L);
+    }
+
+    @DisplayName("Add language to a user")
+    @Test
+    public void addLanguage() throws Exception {
+        long id = 1L;
+        UserLanguageDto userLanguageDto = UserLanguageDto.builder()
+                .language(Language.ENGLISH)
+                .level(CEFRLevel.A2)
+                .build();
+        UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
+        userLanguageLevel.setLevel(userLanguageDto.getLevel());
+        userLanguageLevel.setLanguage(userLanguageDto.getLanguage());
+        User user = User.builder()
+                .id(id)
+                .email("test@mail.com")
+                .countryCode(Country.DE)
+                .password("test2134")
+                .username("test")
+                .spokenLanguages(Set.of(userLanguageLevel))
+                .build();
+
+        Mockito.when(userService.addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel())).thenReturn(user);
+
+        mockMvc.perform(post("/api/v1/users/1/lang")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userLanguageDto))
+
+                ).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.spokenLanguages[0].language").value("en"))
+                .andExpect(jsonPath("$.spokenLanguages[0].level").value("A2"));
+
+        Mockito.verify(userService).addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel());
+    }
+
+    @DisplayName("Add non-supported language should throw a")
+    @Test
+    public void addNonSupportedLanguage() throws Exception {
+        UserLanguageDto userLanguageDto = UserLanguageDto.builder()
+                .language(Language.fromCode("TEST"))
+                .level(CEFRLevel.A2)
+                .build();
+
+        mockMvc.perform(post("/api/v1/users/1/lang")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userLanguageDto)))
+                .andExpect(status().isBadRequest());
+        Mockito.verify(userService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
+    }
+
+    @DisplayName("Add non-supported CEFR level")
+    @Test
+    public void addNonSupportedCEFRLevel() throws Exception {
+        UserLanguageDto userLanguageDto = UserLanguageDto.builder()
+                .language(Language.ENGLISH)
+                .level(null)
+                .build();
+
+        mockMvc.perform(post("/api/v1/users/1/lang")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userLanguageDto)))
+                .andExpect(status().isBadRequest());
+        Mockito.verify(userService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
+    }
+
+    @DisplayName("Delete a language")
+    @Test
+    public void deleteLanguage() throws Exception {
+        long id = 1L;
+        Language language = Language.ENGLISH;
+
+        Mockito.doNothing().when(userService).removeLanguage(id, language);
+
+        mockMvc.perform(delete("/api/v1/users/%s/lang/EN".formatted(id)))
+                .andExpect(status().isNoContent());
+        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+    }
+
+    @DisplayName("Delete language of non-existent user")
+    @Test
+    public void deleteLanguageOfNonExistentUser() throws Exception {
+        long id = 1L;
+        Language language = Language.ENGLISH;
+        Mockito.doThrow(new ResourceNotFoundException("User not found with id: %d".formatted(id)))
+                .when(userService).removeLanguage(id, language);
+        mockMvc.perform(delete("/api/v1/users/%s/lang/EN".formatted(id)))
+                .andExpect(status().isNotFound());
+        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+    }
+
+    @DisplayName("Delete non-existent language")
+    @Test
+    public void deleteLanguageOfNonExistentLanguage() throws Exception {
+        long id = 1L;
+        Language language = Language.ENGLISH;
+        Mockito.doThrow(new ResourceNotFoundException("Language for user %s not found with code: %s".formatted(id, language.getCode())))
+                .when(userService).removeLanguage(id, language);
+        mockMvc.perform(delete("/api/v1/users/%s/lang/%s".formatted(id, language.getCode())))
+                .andExpect(status().isNotFound());
+        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+    }
+
+    @DisplayName("Update a user's language")
+    @Test
+    public void updateLanguage() throws Exception {
+        UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
+        userLanguageLevel.setLevel(CEFRLevel.B2);
+        userLanguageLevel.setLanguage(Language.AFRIKAANS);
+        User user = User.builder().spokenLanguages(Set.of(userLanguageLevel)).build();
+
+        Mockito.when(userService.updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class))).thenReturn(user);
+        mockMvc.perform(put("/api/v1/users/1/lang")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(UserLanguageDto.builder()
+                        .language(userLanguageLevel.getLanguage())
+                        .level(userLanguageLevel.getLevel())
+                        .build())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.spokenLanguages[0].language").value("af"))
+                .andExpect(jsonPath("$.spokenLanguages[0].level").value("B2"));
+
+        Mockito.verify(userService, Mockito.atMostOnce()).updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
     }
 }

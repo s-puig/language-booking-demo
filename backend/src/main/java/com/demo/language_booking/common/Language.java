@@ -1,5 +1,7 @@
 package com.demo.language_booking.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 // Country codes were done via ChatGPT. It's very likely some are wrong, but it should be good enough for a demo.
@@ -105,6 +107,12 @@ public enum Language {
         }
     }
 
+    @JsonValue
+    public String toJson() {
+        return getCode();
+    }
+
+    @JsonCreator
     public static Language fromCode(String code) {
         return codeMap.get(code.toLowerCase());
     }

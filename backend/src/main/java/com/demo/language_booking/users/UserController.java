@@ -4,14 +4,16 @@ import com.demo.language_booking.auth.authorization.AuthPolicy;
 import com.demo.language_booking.auth.authorization.Authorize;
 import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
-import com.demo.language_booking.users.dto.LanguageCreateRequest;
+import com.demo.language_booking.users.dto.UserLanguageDto;
 import com.demo.language_booking.users.dto.UserCreateRequest;
 import com.demo.language_booking.users.dto.UserPublicResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @AllArgsConstructor
@@ -53,8 +55,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserPublicResponse> update(@PathVariable Long id, @RequestBody @Valid UserCreateRequest userCreateRequest) {
         User updatedUser = userService.update(id, userCreateRequest);
-        UserPublicResponse response = userMapper.mapToUserPublicResponse(updatedUser);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userMapper.mapToUserPublicResponse(updatedUser));
     }
 
     @Authorize(User.Role.ADMIN)
@@ -68,17 +69,24 @@ public class UserController {
     @Authorize(User.Role.ADMIN)
     @Authorize(value = User.Role.STUDENT, requireOwnership = true)
     @PostMapping("/{id}/lang")
-    public ResponseEntity<UserPublicResponse> addLanguageToUser(@PathVariable Long id, @RequestBody @Valid LanguageCreateRequest languageCreateRequest) {
-        User updatedUser = userService.addLanguage(id, languageCreateRequest.getLanguage(), languageCreateRequest.getLevel());
-        return ResponseEntity.created(java.net.URI.create("/api/v1/users/{}/lang/{}".formatted(id, languageCreateRequest.getLanguage().getCode()))).body(userMapper.mapToUserPublicResponse(updatedUser));
+    public ResponseEntity<UserPublicResponse> addLanguageToUser(@PathVariable Long id, @RequestBody @Valid UserLanguageDto languageDto) {
+        User updatedUser = userService.addLanguage(id, languageDto.getLanguage(), languageDto.getLevel());
+        return ResponseEntity.created(java.net.URI.create("/api/v1/users/%s/lang/%s".formatted(id, languageDto.getLanguage().getCode()))).body(userMapper.mapToUserPublicResponse(updatedUser));
     }
 
     @Authorize(User.Role.ADMIN)
     @Authorize(value = User.Role.STUDENT, requireOwnership = true)
     @DeleteMapping("/{id}/lang/{lang}")
-    public ResponseEntity<?> deleteLanguageToUser(@PathVariable Long id, @PathVariable String lang) {
-        Language language = Language.fromCode(lang);
-        userService.removeLanguage(id, language);
+    public ResponseEntity<?> deleteLanguageToUser(@PathVariable Long id, @PathVariable @NotNull Language lang) {
+        userService.removeLanguage(id, lang);
         return ResponseEntity.noContent().build();
+    }
+
+    @Authorize(User.Role.ADMIN)
+    @Authorize(value = User.Role.STUDENT, requireOwnership = true)
+    @PutMapping("/{id}/lang")
+    public ResponseEntity<UserPublicResponse> updateLanguageToUser(@PathVariable Long id, @RequestBody @Valid UserLanguageDto languageDto) {
+        User updatedUser = userService.updateLanguage(id, languageDto.getLanguage(), languageDto.getLevel());
+        return ResponseEntity.ok(userMapper.mapToUserPublicResponse(updatedUser));
     }
 }

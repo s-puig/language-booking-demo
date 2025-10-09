@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -389,4 +390,43 @@ public class UserServiceITest {
     public void testRemoveLanguage_nonExistentUser() {
         assertThrows(ResourceNotFoundException.class, () -> userService.removeLanguage(Long.MAX_VALUE, Language.fromCode("EN")));
     }
+
+    @DisplayName("Update language")
+    @Test
+    public void testUpdateLanguage() {
+        UserCreateRequest request = defaultCreateUserRequestBuilder()
+                .build();
+        User newUser = userMapper.mapToUser(request);
+        Language spokenLanguage = Language.fromCode("EN");
+        CEFRLevel oldLevel = CEFRLevel.B2;
+        UserLanguageLevel userLanguageLevel = new UserLanguageLevel();
+        userLanguageLevel.setLanguage(spokenLanguage);
+        userLanguageLevel.setLevel(oldLevel);
+        userLanguageLevel.setUser(newUser);
+        newUser.setSpokenLanguages(Set.of(userLanguageLevel));
+        User createdUser = userRepository.save(newUser);
+        Long userId = createdUser.getId();
+        assertEquals(oldLevel, createdUser.getSpokenLanguages().stream().findFirst().get().getLevel());
+
+        CEFRLevel newLevel = CEFRLevel.C1;
+        createdUser = userService.updateLanguage(userId, spokenLanguage, newLevel);
+
+        assertEquals(newLevel, createdUser.getSpokenLanguages().stream().findFirst().get().getLevel());
+    }
+
+    @DisplayName("Update a non-existing language")
+    @Test
+    public void testUpdateNonExistingLanguage() {
+        UserCreateRequest request = defaultCreateUserRequestBuilder()
+                .build();
+        User createdUser = userRepository.save(userMapper.mapToUser(request));
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateLanguage(createdUser.getId(), Language.ENGLISH, CEFRLevel.C1));
+    }
+
+    @DisplayName("Update a language from a non-existing user")
+    @Test
+    public void testUpdateLanguageNonExistingUser() {
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateLanguage(Long.MAX_VALUE, Language.ENGLISH, CEFRLevel.C1));
+    }
+
 }

@@ -49,6 +49,9 @@ public class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private UserLanguageService userLanguageService;
+
     @TestConfiguration
     static class UserControllerTestConfiguration implements WebMvcConfigurer {
         @Bean
@@ -160,7 +163,7 @@ public class UserControllerTest {
                 .password("defaultPassword")
                 .build();
 
-        Mockito.when(userService.getById(Mockito.anyLong())).thenReturn(Optional.of(mockUser));
+        Mockito.when(userService.findById(Mockito.anyLong())).thenReturn(Optional.of(mockUser));
 
         mockMvc.perform(get("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -169,19 +172,19 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username").value(mockUser.getUsername()))
                 .andExpect(jsonPath("$.email").value(mockUser.getEmail()));
 
-        Mockito.verify(userService).getById(1L);
+        Mockito.verify(userService).findById(1L);
     }
 
     @DisplayName("Get a user by ID not found")
     @Test
     public void getUserByIdNotFound() throws Exception {
-        Mockito.when(userService.getById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Mockito.when(userService.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/users/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        Mockito.verify(userService).getById(1L);
+        Mockito.verify(userService).findById(1L);
     }
 
     @DisplayName("Get all users returns users list")
@@ -341,7 +344,7 @@ public class UserControllerTest {
                 .spokenLanguages(Set.of(userLanguageLevel))
                 .build();
 
-        Mockito.when(userService.addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel())).thenReturn(user);
+        Mockito.when(userLanguageService.addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel())).thenReturn(user);
 
         mockMvc.perform(post("/api/v1/users/1/lang")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -351,7 +354,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.spokenLanguages[0].language").value("en"))
                 .andExpect(jsonPath("$.spokenLanguages[0].level").value("A2"));
 
-        Mockito.verify(userService).addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel());
+        Mockito.verify(userLanguageService).addLanguage(id, userLanguageDto.getLanguage(), userLanguageDto.getLevel());
     }
 
     @DisplayName("Add non-supported language should throw a")
@@ -366,7 +369,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userLanguageDto)))
                 .andExpect(status().isBadRequest());
-        Mockito.verify(userService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
+        Mockito.verify(userLanguageService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
     }
 
     @DisplayName("Add non-supported CEFR level")
@@ -381,7 +384,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userLanguageDto)))
                 .andExpect(status().isBadRequest());
-        Mockito.verify(userService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
+        Mockito.verify(userLanguageService, Mockito.never()).addLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
     }
 
     @DisplayName("Delete a language")
@@ -390,11 +393,11 @@ public class UserControllerTest {
         long id = 1L;
         Language language = Language.ENGLISH;
 
-        Mockito.doNothing().when(userService).removeLanguage(id, language);
+        Mockito.doNothing().when(userLanguageService).deleteLanguage(id, language);
 
         mockMvc.perform(delete("/api/v1/users/%s/lang/EN".formatted(id)))
                 .andExpect(status().isNoContent());
-        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+        Mockito.verify(userLanguageService, Mockito.atMostOnce()).deleteLanguage(id, language);
     }
 
     @DisplayName("Delete language of non-existent user")
@@ -403,10 +406,10 @@ public class UserControllerTest {
         long id = 1L;
         Language language = Language.ENGLISH;
         Mockito.doThrow(new ResourceNotFoundException("User not found with id: %d".formatted(id)))
-                .when(userService).removeLanguage(id, language);
+                .when(userLanguageService).deleteLanguage(id, language);
         mockMvc.perform(delete("/api/v1/users/%s/lang/EN".formatted(id)))
                 .andExpect(status().isNotFound());
-        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+        Mockito.verify(userLanguageService, Mockito.atMostOnce()).deleteLanguage(id, language);
     }
 
     @DisplayName("Delete non-existent language")
@@ -415,10 +418,10 @@ public class UserControllerTest {
         long id = 1L;
         Language language = Language.ENGLISH;
         Mockito.doThrow(new ResourceNotFoundException("Language for user %s not found with code: %s".formatted(id, language.getCode())))
-                .when(userService).removeLanguage(id, language);
+                .when(userLanguageService).deleteLanguage(id, language);
         mockMvc.perform(delete("/api/v1/users/%s/lang/%s".formatted(id, language.getCode())))
                 .andExpect(status().isNotFound());
-        Mockito.verify(userService, Mockito.atMostOnce()).removeLanguage(id, language);
+        Mockito.verify(userLanguageService, Mockito.atMostOnce()).deleteLanguage(id, language);
     }
 
     @DisplayName("Update a user's language")
@@ -429,7 +432,7 @@ public class UserControllerTest {
         userLanguageLevel.setLanguage(Language.AFRIKAANS);
         User user = User.builder().spokenLanguages(Set.of(userLanguageLevel)).build();
 
-        Mockito.when(userService.updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class))).thenReturn(user);
+        Mockito.when(userLanguageService.updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class))).thenReturn(user);
         mockMvc.perform(put("/api/v1/users/1/lang")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(UserLanguageDto.builder()
@@ -440,6 +443,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.spokenLanguages[0].language").value("af"))
                 .andExpect(jsonPath("$.spokenLanguages[0].level").value("B2"));
 
-        Mockito.verify(userService, Mockito.atMostOnce()).updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
+        Mockito.verify(userLanguageService, Mockito.atMostOnce()).updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class));
     }
 }

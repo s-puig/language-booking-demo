@@ -39,7 +39,7 @@ public class ScheduleService implements IScheduleService {
     @NotNull
     @Transactional
     public RegularSchedule create(long id, @Valid ScheduleRequest schedule) {
-        User tutor = userService.getById(id)
+        User tutor = userService.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tutor not found for id: %s".formatted(id)));
         RegularSchedule parsedSchedule = scheduleMapper.toRegularSchedule(schedule);
         parsedSchedule.setTutor(tutor);

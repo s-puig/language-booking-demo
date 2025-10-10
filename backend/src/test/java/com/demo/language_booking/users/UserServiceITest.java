@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class UserServiceITest {
     @Autowired
-    private UserService userService;
+    private PrimaryUserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -148,14 +148,14 @@ public class UserServiceITest {
 
         User createdUser = userRepository.save(userMapper.mapToUser(request));
         Long id = createdUser.getId();
-        Optional<User> result = userService.getById(id);
+        Optional<User> result = userService.findById(id);
         assertTrue(result.isPresent());
     }
 
     @DisplayName("Get a user by ID with non-existent ID returns an empty optional")
     @Test
     public void testGetById_nonExistentId() {
-        Optional<User> result = userService.getById(Long.MAX_VALUE);
+        Optional<User> result = userService.findById(Long.MAX_VALUE);
         assertFalse(result.isPresent());
     }
 
@@ -376,7 +376,7 @@ public class UserServiceITest {
         User user = userService.addLanguage(userId, spokenLanguage, languageLevel);
         assertFalse(user.getSpokenLanguages().isEmpty());
 
-        userService.removeLanguage(userId, spokenLanguage);
+        userService.deleteLanguage(userId, spokenLanguage);
 
         Optional<UserLanguageLevel> result = userRepository.findById(userId).orElseThrow().getSpokenLanguages()
                 .stream()
@@ -388,7 +388,7 @@ public class UserServiceITest {
     @DisplayName("Remove a language from a non-existent user throws ResourceNotFoundException")
     @Test
     public void testRemoveLanguage_nonExistentUser() {
-        assertThrows(ResourceNotFoundException.class, () -> userService.removeLanguage(Long.MAX_VALUE, Language.fromCode("EN")));
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteLanguage(Long.MAX_VALUE, Language.fromCode("EN")));
     }
 
     @DisplayName("Update language")

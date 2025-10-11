@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ScheduleServiceITest {
 
     @Autowired
-    private ScheduleService scheduleService;
+    private DefaultScheduleService scheduleService;
 
     @Autowired
     private UserRepository userRepository;

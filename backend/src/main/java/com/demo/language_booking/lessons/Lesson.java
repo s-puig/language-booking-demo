@@ -5,9 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,18 +24,29 @@ public class Lesson {
     @Column(name = "lesson_id")
     private long id;
 
-    @Column(name = "lesson_name")
+    @Column(name = "lesson_name", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "price", precision = 10, scale = 2)
+    @Column(name = "price", precision = 10, scale = 2, nullable = false)
     private BigDecimal price;
 
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(targetClass = LessonCategory.class)
+    @CollectionTable(name = "lesson_categories", joinColumns = @JoinColumn(name = "lesson_id"))
+    @Column(name = "category")
+    private Set<LessonCategory> lessonCategories;
+
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

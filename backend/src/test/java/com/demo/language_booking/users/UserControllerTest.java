@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 
 import com.demo.language_booking.SecurityConfig;
+import com.demo.language_booking.TestType;
 import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Country;
 import com.demo.language_booking.common.Language;
@@ -38,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(
         properties = "auth.filter.enabled=false"
 )
-@Tag("Unit")
+@Tag(TestType.UNIT)
 public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
@@ -434,11 +435,11 @@ public class UserControllerTest {
 
         Mockito.when(userLanguageService.updateLanguage(Mockito.anyLong(), Mockito.any(Language.class), Mockito.any(CEFRLevel.class))).thenReturn(user);
         mockMvc.perform(put("/api/v1/users/1/lang")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(UserLanguageDto.builder()
-                        .language(userLanguageLevel.getLanguage())
-                        .level(userLanguageLevel.getLevel())
-                        .build())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(UserLanguageDto.builder()
+                                .language(userLanguageLevel.getLanguage())
+                                .level(userLanguageLevel.getLevel())
+                                .build())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.spokenLanguages[0].language").value("af"))
                 .andExpect(jsonPath("$.spokenLanguages[0].level").value("B2"));

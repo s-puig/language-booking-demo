@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/schedules")
 public class ScheduleController {
 
-    private final IScheduleService scheduleService;
+    private final ScheduleService scheduleService;
 
     private final ScheduleMapper scheduleMapper;
 

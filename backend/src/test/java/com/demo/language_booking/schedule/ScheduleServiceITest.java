@@ -1,12 +1,14 @@
 package com.demo.language_booking.schedule;
 
 
+import com.demo.language_booking.TestType;
 import com.demo.language_booking.common.Country;
 import com.demo.language_booking.schedule.dto.ScheduleRequest;
 import com.demo.language_booking.users.User;
 import com.demo.language_booking.users.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
+@Tag(TestType.INTEGRATION)
 public class ScheduleServiceITest {
 
     @Autowired
-    private ScheduleService scheduleService;
+    private DefaultScheduleService scheduleService;
 
     @Autowired
     private UserRepository userRepository;

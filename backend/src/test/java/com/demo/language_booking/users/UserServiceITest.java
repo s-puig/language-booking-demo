@@ -1,5 +1,6 @@
 package com.demo.language_booking.users;
 
+import com.demo.language_booking.TestType;
 import com.demo.language_booking.common.CEFRLevel;
 import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.DuplicateLanguageException;
@@ -23,7 +24,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag("Integration")
+@Tag(TestType.INTEGRATION)
 @SpringBootTest
 public class UserServiceITest {
     @Autowired

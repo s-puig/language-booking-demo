@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class UserServiceITest {
     @Autowired
-    private PrimaryUserService userService;
+    private DefaultUserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired

@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Primary
 @Service
-public class PrimaryUserService implements UserService, UserLanguageService {
+public class DefaultUserService implements UserService, UserLanguageService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;

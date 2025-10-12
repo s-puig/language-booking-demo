@@ -32,7 +32,7 @@ import java.util.Date;
 @Validated
 @Service
 @Primary
-public class PrimaryAuthService implements AuthService {
+public class DefaultAuthService implements AuthService {
     private final static String APP_ISSUER = "language-booking";
 
     private final UserService userService;

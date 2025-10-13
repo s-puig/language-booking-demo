@@ -1,6 +1,5 @@
 package com.demo.language_booking.users.dto;
 
-
 import com.demo.language_booking.common.Country;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,11 +9,11 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Represents a request data object for creating a user.
+ * Represents a request data object for updating user information.
  */
-@Data
 @Builder
-public class UserCreateRequest {
+@Data
+public class UserUpdateRequest {
 	@Size(min = 5, max = 32, message = "Username must be between 5 and 32 characters long")
 	@NotBlank(message = "Username cannot be empty")
 	private String username;

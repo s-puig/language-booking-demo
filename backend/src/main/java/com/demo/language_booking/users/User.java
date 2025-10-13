@@ -2,6 +2,8 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.Country;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,47 +23,50 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Long id;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+	@Size(min = 5, max = 32, message = "Username must be between 5 and 32 characters long")
+	@NotBlank(message = "Username cannot be empty")
+	@Column(name = "username", nullable = false, unique = true, length = 32)
+	private String username;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+	@Size(min = 5, max = 64, message = "Email must be at most 64 characters long")
+	@Column(name = "email", nullable = false, unique = true, length = 64)
+	private String email;
 
-    @Column(name = "password", nullable = false)
-    private String password;
+	@Column(name = "password", nullable = false)
+	private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "country_code", length = 2, nullable = false)
-    private Country countryCode;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "country_code", length = 2, nullable = false)
+	private Country countryCode;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<UserLanguageLevel> spokenLanguages = new HashSet<>();
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	private Set<UserLanguageLevel> spokenLanguages = new HashSet<>();
 
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    @ColumnDefault("'STUDENT'")
-    private Role role = Role.STUDENT;
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", nullable = false)
+	@ColumnDefault("'STUDENT'")
+	private Role role = Role.STUDENT;
 
-    @Column(name = "created_at", updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+	@Column(name = "created_at", updatable = false)
+	@CreationTimestamp
+	private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+	@Column(name = "updated_at")
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+	@Column(name = "deleted_at")
+	private LocalDateTime deletedAt;
 
-    public enum Role {
-        STUDENT,
-        TEACHER,
-        ADMIN
-    }
+	public enum Role {
+		STUDENT,
+		TEACHER,
+		ADMIN
+	}
 }

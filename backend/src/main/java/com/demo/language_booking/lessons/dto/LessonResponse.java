@@ -10,9 +10,10 @@ import java.util.Set;
 @Builder
 @Data
 public class LessonResponse {
-    public long id;
-    public String name;
-    public String description;
-    public BigDecimal price;
-    public Set<LessonCategory> lessonCategories;
+	public long id;
+	public long tutorId;
+	public String name;
+	public String description;
+	public BigDecimal price;
+	public Set<LessonCategory> lessonCategories;
 }

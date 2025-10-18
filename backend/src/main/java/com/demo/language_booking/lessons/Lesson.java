@@ -1,5 +1,6 @@
 package com.demo.language_booking.lessons;
 
+import com.demo.language_booking.users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,34 +20,38 @@ import java.util.Set;
 @Entity
 @Table(name = "lessons")
 public class Lesson {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "lesson_id")
-    private long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "lesson_id")
+	private long id;
 
-    @Column(name = "lesson_name", nullable = false)
-    private String name;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User tutor;
 
-    @Column(name = "description")
-    private String description;
+	@Column(name = "lesson_name", nullable = false, length = 32)
+	private String name;
 
-    @Column(name = "price", precision = 10, scale = 2, nullable = false)
-    private BigDecimal price;
+	@Column(name = "description", length = 256)
+	private String description;
 
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = LessonCategory.class)
-    @CollectionTable(name = "lesson_categories", joinColumns = @JoinColumn(name = "lesson_id"))
-    @Column(name = "category")
-    private Set<LessonCategory> lessonCategories;
+	@Column(name = "price", precision = 10, scale = 2, nullable = false)
+	private BigDecimal price;
 
-    @Column(name = "created_at")
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+	@Enumerated(EnumType.STRING)
+	@ElementCollection(targetClass = LessonCategory.class)
+	@CollectionTable(name = "lesson_categories", joinColumns = @JoinColumn(name = "lesson_id"))
+	@Column(name = "category", nullable = false)
+	private Set<LessonCategory> lessonCategories;
 
-    @Column(name = "updated_at")
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+	@Column(name = "created_at")
+	@CreationTimestamp
+	private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+	@Column(name = "updated_at")
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
+
+	@Column(name = "deleted_at")
+	private LocalDateTime deletedAt;
 }

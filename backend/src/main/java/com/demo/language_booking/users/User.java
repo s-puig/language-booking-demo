@@ -1,6 +1,7 @@
 package com.demo.language_booking.users;
 
 import com.demo.language_booking.common.Country;
+import com.demo.language_booking.lessons.Lesson;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -21,47 +23,40 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long id;
+	@OneToMany(mappedBy = "tutor")
+	List<Lesson> lessons;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
+	private Long id;
+	@Column(name = "username", nullable = false, unique = true)
+	private String username;
+	@Column(name = "email", nullable = false, unique = true)
+	private String email;
+	@Column(name = "password", nullable = false)
+	private String password;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "country_code", length = 2, nullable = false)
+	private Country countryCode;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	private Set<UserLanguageLevel> spokenLanguages = new HashSet<>();
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	@Column(name = "role", nullable = false)
+	@ColumnDefault("'STUDENT'")
+	private Role role = Role.STUDENT;
+	@Column(name = "created_at", updatable = false)
+	@CreationTimestamp
+	private LocalDateTime createdAt;
+	@Column(name = "updated_at")
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
+	@Column(name = "deleted_at")
+	private LocalDateTime deletedAt;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "country_code", length = 2, nullable = false)
-    private Country countryCode;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<UserLanguageLevel> spokenLanguages = new HashSet<>();
-
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    @ColumnDefault("'STUDENT'")
-    private Role role = Role.STUDENT;
-
-    @Column(name = "created_at", updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
-    public enum Role {
-        STUDENT,
-        TEACHER,
-        ADMIN
-    }
+	public enum Role {
+		STUDENT,
+		TEACHER,
+		ADMIN
+	}
 }

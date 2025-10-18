@@ -1,12 +1,17 @@
 package com.demo.language_booking.lessons;
 
-import lombok.AllArgsConstructor;
+import com.demo.language_booking.lessons.dto.LessonCreateRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Validated
 @Service
 public class DefaultLessonService implements LessonService {
 	private final LessonRepository lessonRepository;
@@ -22,7 +27,12 @@ public class DefaultLessonService implements LessonService {
 	}
 
 	@Override
-	public List<Lesson> findAll(LessonFilter filter) {
+	public List<Lesson> findAll(@Valid @NotNull LessonFilter filter) {
 		return List.of();
+	}
+
+	@Override
+	public Lesson create(@Valid @NotNull LessonCreateRequest lessonCreateRequest) {
+		return null;
 	}
 }

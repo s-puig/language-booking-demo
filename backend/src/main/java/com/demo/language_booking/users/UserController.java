@@ -2,6 +2,7 @@ package com.demo.language_booking.users;
 
 import com.demo.language_booking.auth.authorization.AuthPolicy;
 import com.demo.language_booking.auth.authorization.Authorize;
+import com.demo.language_booking.auth.authorization.IdentityPolicy;
 import com.demo.language_booking.common.Language;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.users.dto.UserCreateRequest;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@AuthPolicy(UserSecurityPolicy.class)
+@AuthPolicy(IdentityPolicy.class)
 @RequestMapping(value = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 	private final UserService userService;

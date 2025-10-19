@@ -11,8 +11,6 @@ import java.util.Set;
 @Builder
 @Data
 public class LessonCreateRequest {
-	@Positive(message = "Tutor id must be positive")
-	private long tutorId;
 	@NotBlank
 	@Size(max = 32, message = "Name must be less than 32 characters")
 	private String name;

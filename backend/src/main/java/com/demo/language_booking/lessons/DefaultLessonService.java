@@ -37,7 +37,7 @@ public class DefaultLessonService implements LessonService {
 
 	@NonNull
 	@Override
-	public Lesson create(@Valid @NotNull LessonCreateRequest lessonCreateRequest) {
+	public Lesson create(long id, @Valid @NotNull LessonCreateRequest lessonCreateRequest) {
 		return null;
 	}
 

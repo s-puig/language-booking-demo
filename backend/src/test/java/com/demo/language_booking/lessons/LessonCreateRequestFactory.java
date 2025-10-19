@@ -12,7 +12,6 @@ public class LessonCreateRequestFactory {
 
 	public static LessonCreateRequest.LessonCreateRequestBuilder validCreateLessonRequestBuilder() {
 		return LessonCreateRequest.builder()
-				.tutorId(1)
 				.name("Default lesson")
 				.description("Default lesson description")
 				.lessonCategories(
@@ -21,8 +20,7 @@ public class LessonCreateRequestFactory {
 	}
 
 	public static Stream<InvalidFieldCase> getInvalidTestCases() {
-		return Stream.of(new InvalidFieldCase("tutorId", -1),
-				new InvalidFieldCase("name", ""),
+		return Stream.of(new InvalidFieldCase("name", ""),
 				new InvalidFieldCase("name", "A".repeat(33)),
 				new InvalidFieldCase("description", "A".repeat(257)),
 				new InvalidFieldCase("price", BigDecimal.valueOf(-10.5)),

@@ -1,5 +1,6 @@
 package com.demo.language_booking.lessons;
 
+import com.demo.language_booking.auth.CurrentSession;
 import com.demo.language_booking.auth.authorization.Authorize;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.lessons.dto.LessonCreateRequest;
@@ -52,8 +53,8 @@ public class LessonController {
 	@Authorize(User.Role.ADMIN)
 	@Authorize(User.Role.TEACHER)
 	@PostMapping
-	public ResponseEntity<LessonResponse> create(@Valid @RequestBody LessonCreateRequest lessonCreateRequest) {
-		Lesson lesson = lessonService.create(lessonCreateRequest);
+	public ResponseEntity<LessonResponse> create(@Valid @RequestBody LessonCreateRequest lessonCreateRequest, CurrentSession session) {
+		Lesson lesson = lessonService.create(session.getId(), lessonCreateRequest);
 
 		return ResponseEntity.created(java.net.URI.create("/api/v1/lessons/%s".formatted(lesson.getId())))
 				.body(lessonMapper.toLessonResponse(lesson));

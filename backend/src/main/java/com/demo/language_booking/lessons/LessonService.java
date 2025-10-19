@@ -18,7 +18,7 @@ public interface LessonService {
 	List<Lesson> findAll(@NotNull LessonFilter filter);
 
 	@NonNull
-	Lesson create(@NotNull LessonCreateRequest lessonCreateRequest);
+	Lesson create(long id, @NotNull LessonCreateRequest lessonCreateRequest);
 
 	@NonNull
 	Lesson update(long id, @NotNull LessonUpdateRequest lessonUpdateRequest);

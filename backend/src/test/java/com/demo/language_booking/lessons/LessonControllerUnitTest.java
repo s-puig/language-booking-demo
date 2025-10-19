@@ -3,6 +3,9 @@ package com.demo.language_booking.lessons;
 import com.demo.language_booking.InvalidFieldCase;
 import com.demo.language_booking.SecurityConfig;
 import com.demo.language_booking.TestType;
+import com.demo.language_booking.auth.MvcAuthConfig;
+import com.demo.language_booking.auth.MvcAuthUserResolver;
+import com.demo.language_booking.auth.SessionFactory;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.lessons.dto.LessonCreateRequest;
 import com.demo.language_booking.lessons.dto.LessonUpdateRequest;
@@ -26,8 +29,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,12 +37,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @Tag(TestType.UNIT)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, MvcAuthConfig.class, MvcAuthUserResolver.class})
 @TestPropertySource(
 		properties = "auth.filter.enabled=false"
 )
 @WebMvcTest(LessonController.class)
-public final class LessonControllerTest {
+public final class LessonControllerUnitTest {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	@Autowired
 	private MockMvc mockMvc;
@@ -134,14 +136,17 @@ public final class LessonControllerTest {
 	@Test
 	public void createLesson() throws Exception {
 		LessonCreateRequest lessonCreateRequest = LessonCreateRequestFactory.VALID_CREATE_LESSON;
+		Lesson lesson = LessonFactory.from(lessonCreateRequest);
 
-		when(lessonService.create(lessonCreateRequest)).thenReturn(LessonFactory.from(lessonCreateRequest));
+		when(lessonService.create(anyLong(),
+				eq(lessonCreateRequest))).thenReturn(LessonFactory.from(lessonCreateRequest));
 
 		mockMvc.perform(post("/api/v1/lessons").contentType(MediaType.APPLICATION_JSON)
+						.requestAttr("session", SessionFactory.VALID_USER_PUBLIC_RESPONSE)
 						.content(objectMapper.writeValueAsString(lessonCreateRequest)))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location",
-						"/api/v1/lessons/%s".formatted(lessonCreateRequest.getTutorId())));
+						"/api/v1/lessons/%s".formatted(lesson.getId())));
 	}
 
 	@DisplayName("POST /v1/lessons - invalid data is Bad Request")

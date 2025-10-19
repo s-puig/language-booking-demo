@@ -13,7 +13,7 @@ public final class LessonFactory {
 	private static Lesson.LessonBuilder lessonBuilder(LessonCreateRequest lessonCreateRequest) {
 		return Lesson.builder()
 				.tutor(User.builder()
-						.id(lessonCreateRequest.getTutorId())
+						.id(1L)
 						.build())
 				.name(lessonCreateRequest.getName())
 				.description(lessonCreateRequest.getDescription())

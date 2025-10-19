@@ -4,6 +4,7 @@ import com.demo.language_booking.auth.authorization.Authorize;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.lessons.dto.LessonCreateRequest;
 import com.demo.language_booking.lessons.dto.LessonResponse;
+import com.demo.language_booking.lessons.dto.LessonUpdateRequest;
 import com.demo.language_booking.users.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +40,32 @@ public class LessonController {
 	}
 
 	@Authorize(User.Role.ADMIN)
+	@Authorize(value = User.Role.TEACHER, requireOwnership = true)
+	@PutMapping("{id}")
+	public ResponseEntity<LessonResponse> updateById(@PathVariable Long id, @Valid @RequestBody LessonUpdateRequest lessonUpdateRequest) {
+		Lesson lesson = lessonService.update(id, lessonUpdateRequest);
+
+		return ResponseEntity.ok(lessonMapper.toLessonResponse(lesson));
+	}
+
+
+	@Authorize(User.Role.ADMIN)
 	@Authorize(User.Role.TEACHER)
 	@PostMapping
-	public ResponseEntity<LessonResponse> create(@RequestBody LessonCreateRequest lessonCreateRequest) {
+	public ResponseEntity<LessonResponse> create(@Valid @RequestBody LessonCreateRequest lessonCreateRequest) {
 		Lesson lesson = lessonService.create(lessonCreateRequest);
 
 		return ResponseEntity.created(java.net.URI.create("/api/v1/lessons/%s".formatted(lesson.getId())))
 				.body(lessonMapper.toLessonResponse(lesson));
+	}
+
+	@Authorize(User.Role.ADMIN)
+	@Authorize(value = User.Role.TEACHER, requireOwnership = true)
+	@DeleteMapping("{id}")
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		lessonService.delete(id);
+
+		return ResponseEntity.noContent()
+				.build();
 	}
 }

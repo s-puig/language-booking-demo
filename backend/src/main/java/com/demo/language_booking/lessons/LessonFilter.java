@@ -9,24 +9,25 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.stream.Stream;
 
+@ValidPriceRange
 @Builder
 @Data
 public class LessonFilter {
 	// Tutor's filter properties
 	@Positive(message = "Tutor has to be a postive number")
-	private Long tutor_id;
+	private Long tutorId;
 	private Country country;
 
 	// Lesson's filter properties
-	private LessonCategory category;
+	private LessonCategory lessonCategory;
 	// TODO: Missing min max price validator
-	@DecimalMin(value = "0.00", inclusive = true, message = "Minimum price must be positive")
+	@DecimalMin(value = "0.00", message = "Minimum price must be positive")
 	private BigDecimal minPrice;
-	@DecimalMin(value = "0.00", inclusive = true, message = "Maximum price must be positive")
+	@DecimalMin(value = "0.00", message = "Maximum price must be positive")
 	private BigDecimal maxPrice;
 
 	public boolean isEmpty() {
-		return Stream.of(tutor_id, country, category, minPrice, maxPrice)
+		return Stream.of(tutorId, country, lessonCategory, minPrice, maxPrice)
 				.allMatch(java.util.Objects::isNull);
 	}
 }

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @ValidPriceRange
@@ -19,7 +20,7 @@ public class LessonFilter {
 	private Country country;
 
 	// Lesson's filter properties
-	private LessonCategory lessonCategory;
+	private Set<LessonCategory> lessonCategory;
 	// TODO: Missing min max price validator
 	@DecimalMin(value = "0.00", message = "Minimum price must be positive")
 	private BigDecimal minPrice;

@@ -5,9 +5,13 @@ import com.demo.language_booking.lessons.dto.LessonCreateRequest;
 import com.demo.language_booking.lessons.dto.LessonUpdateRequest;
 import com.demo.language_booking.users.User;
 import com.demo.language_booking.users.UserService;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Validated
@@ -24,6 +29,40 @@ public class DefaultLessonService implements LessonService {
 	private final LessonRepository lessonRepository;
 	private final LessonMapper lessonMapper;
 	private final UserService userService;
+
+	public static Specification<Lesson> withFilter(LessonFilter filter) {
+		return (root, query, cb) -> {
+			Set<Predicate> predicates = new HashSet<>();
+
+			if (filter.getTutorId() != null) {
+				predicates.add(cb.equal(root.get("tutor")
+						.get("id"), filter.getTutorId()));
+			}
+
+			if (filter.getCountry() != null) {
+				predicates.add(cb.equal(root.get("tutor")
+						.get("countryCode"), filter.getCountry()));
+			}
+
+			if (filter.getLessonCategory() != null && !filter.getLessonCategory()
+					.isEmpty()) {
+				Join<Lesson, LessonCategory> categoryJoin = root.joinSet("lessonCategories", JoinType.INNER);
+				predicates.add(categoryJoin.in(filter.getLessonCategory()));
+				assert query != null;
+				query.distinct(true);
+			}
+
+			if (filter.getMinPrice() != null) {
+				predicates.add(cb.greaterThanOrEqualTo(root.get("price"), filter.getMinPrice()));
+			}
+
+			if (filter.getMaxPrice() != null) {
+				predicates.add(cb.lessThanOrEqualTo(root.get("price"), filter.getMaxPrice()));
+			}
+
+			return cb.and(predicates.toArray(new Predicate[0]));
+		};
+	}
 
 	@Override
 	public Optional<Lesson> findById(long id) {
@@ -39,7 +78,7 @@ public class DefaultLessonService implements LessonService {
 	@NonNull
 	@Override
 	public List<Lesson> findAll(@Valid @NotNull LessonFilter filter) {
-		return List.of();
+		return lessonRepository.findAll(withFilter(filter));
 	}
 
 	@Transactional

@@ -20,8 +20,7 @@ import java.util.Set;
 @Entity
 @Table(name = "lessons")
 @SQLDelete(sql = "UPDATE lessons SET deleted_at = now() WHERE lesson_id=?")
-//@SQLRestriction("deleted_at IS null")
-@Where(clause = "deleted_at IS NULL")
+@SQLRestriction("deleted_at IS null")
 public class Lesson {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -2,6 +2,7 @@ package com.demo.language_booking.lessons;
 
 import com.demo.language_booking.InvalidFieldCase;
 import com.demo.language_booking.TestType;
+import com.demo.language_booking.common.Country;
 import com.demo.language_booking.common.exceptions.ResourceNotFoundException;
 import com.demo.language_booking.lessons.dto.LessonCreateRequest;
 import com.demo.language_booking.lessons.dto.LessonUpdateRequest;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +37,6 @@ public final class LessonServiceIntegrationTest {
 	private LessonRepository lessonRepository;
 	@Autowired
 	private UserRepository userRepository;
-	@Autowired
-	private LessonMapper lessonMapper;
 
 	@DisplayName("Add lesson")
 	@Test
@@ -48,15 +48,12 @@ public final class LessonServiceIntegrationTest {
 		Lesson lesson = lessonService.create(user.getId(), lessonCreateRequest);
 
 		assertTrue(lessonRepository.existsById(lesson.getId()));
-		assertTrue(lesson.getTutor()
-				.getId() == user.getId());
-		assertTrue(lessonCreateRequest.getPrice() == lesson.getPrice());
-		assertTrue(lessonCreateRequest.getName()
-				.equals(lesson.getName()));
-		assertTrue(lessonCreateRequest.getDescription()
-				.equals(lesson.getDescription()));
-		assertTrue(lessonCreateRequest.getLessonCategories()
-				.equals(lesson.getLessonCategories()));
+		assertSame(lesson.getTutor()
+				.getId(), user.getId());
+		assertSame(lessonCreateRequest.getPrice(), lesson.getPrice());
+		assertEquals(lessonCreateRequest.getName(), lesson.getName());
+		assertEquals(lessonCreateRequest.getDescription(), lesson.getDescription());
+		assertEquals(lessonCreateRequest.getLessonCategories(), lesson.getLessonCategories());
 	}
 
 	@DisplayName("Add malformed lesson throws ConstraintViolationException")
@@ -159,47 +156,76 @@ public final class LessonServiceIntegrationTest {
 		thirdLesson.setId(null);
 		thirdLesson = lessonRepository.saveAndFlush(thirdLesson);
 
-		assertEquals(lessonRepository.findAll()
-				.size(), 3);
+		assertEquals(3, lessonRepository.findAll()
+				.size());
 		lessonRepository.deleteById(thirdLesson.getId());
 
-		assertEquals(lessonRepository.findAll()
-				.size(), 2);
+		assertEquals(2, lessonRepository.findAll()
+				.size());
 
-		assertEquals(lessonService.findAll()
-				.size(), 2);
+		assertEquals(2, lessonService.findAll()
+				.size());
+	}
+
+	private void prepareLesson(LessonCreateRequest lessonCreateRequest, User user) {
+		Lesson lesson = LessonFactory.from(lessonCreateRequest, user);
+		lesson.setId(null);
+		lessonRepository.saveAndFlush(lesson);
 	}
 
 	@DisplayName("Get all lessons - Filtered")
-	@Test
-	public void getAllLessonsFiltered() {
-		LessonCreateRequest lessonCreateRequest = LessonCreateRequestFactory.validCreateLessonRequestBuilder()
-				.build();
-		User user = userRepository.saveAndFlush(UserFactory.getValidUserBuilder()
+	@ParameterizedTest
+	@MethodSource("com.demo.language_booking.lessons.LessonFilterFactory#lessonFilterProvider")
+	public void getAllLessonsFiltered(LessonFilter filter, Set<String> validLessonNames) {
+		User user = userRepository.save(User.builder()
+				.email("test@test.com")
+				.password("12345679")
+				.username("firstUser")
+				.role(
+						User.Role.TEACHER)
+				.countryCode(Country.ES)
 				.build());
-		Lesson lesson = LessonFactory.from(lessonCreateRequest, user);
-		lesson.setId(null);
-		lesson = lessonRepository.saveAndFlush(lesson);
 
-		lessonCreateRequest.setName("Second lesson");
-		Lesson secondLesson = LessonFactory.from(lessonCreateRequest, user);
-		secondLesson.setId(null);
-		secondLesson = lessonRepository.saveAndFlush(secondLesson);
+		prepareLesson(LessonCreateRequest.builder()
+				.name("Vocabulary")
+				.lessonCategories(Set.of(LessonCategory.VOCABULARY))
+				.price(BigDecimal.valueOf(9.5))
+				.build(), user);
+		prepareLesson(LessonCreateRequestFactory.validCreateLessonRequestBuilder()
+				.name("Listening")
+				.price(BigDecimal.valueOf(18.0))
+				.lessonCategories(Set.of(LessonCategory.LISTENING))
+				.build(), user);
 
-		lessonCreateRequest.setName("Third lesson");
-		Lesson thirdLesson = LessonFactory.from(lessonCreateRequest, user);
-		thirdLesson.setId(null);
-		thirdLesson = lessonRepository.saveAndFlush(thirdLesson);
+		// FIXME: This is a hack to make the test pass, because the ID's don't reset due to a bug in User tests.
+		if (filter.getTutorId() != null) filter.setTutorId(user.getId());
 
-		assertEquals(lessonRepository.findAll()
-				.size(), 3);
-		lessonRepository.deleteById(thirdLesson.getId());
+		user = userRepository.save(User.builder()
+				.email("second@test.com")
+				.username("secondUser")
+				.password("12345648789")
+				.role(
+						User.Role.TEACHER)
+				.countryCode(
+						Country.DE)
+				.build());
 
-		assertEquals(lessonRepository.findAll()
-				.size(), 2);
+		prepareLesson(LessonCreateRequestFactory.validCreateLessonRequestBuilder()
+				.name("German")
+				.price(BigDecimal.valueOf(18.5))
+				.lessonCategories(Set.of(LessonCategory.TRANSLATION))
+				.build(), user);
+		prepareLesson(LessonCreateRequestFactory.validCreateLessonRequestBuilder()
+				.name("Interview Prep")
+				.price(BigDecimal.valueOf(30.0))
+				.lessonCategories(Set.of(LessonCategory.INTERVIEW_PREPARATION))
+				.build(), user);
 
-		assertEquals(lessonService.findAll()
-				.size(), 2);
+
+		List<Lesson> filteredLessons = lessonService.findAll(filter);
+		assertEquals(validLessonNames.size(), filteredLessons.size());
+		assertTrue(filteredLessons.stream()
+				.allMatch(lesson -> validLessonNames.contains(lesson.getName())));
 	}
 
 	@DisplayName("Delete lesson")

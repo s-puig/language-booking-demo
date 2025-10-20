@@ -12,7 +12,7 @@ public final class LessonUpdateRequestFactory {
 	public static final LessonUpdateRequest VALID_UPDATE_LESSON = validUpdateLessonRequestBuilder().build();
 
 	public static LessonUpdateRequest.LessonUpdateRequestBuilder validUpdateLessonRequestBuilder() {
-		LessonCreateRequest LESSON = LessonCreateRequestFactory.VALID_CREATE_LESSON;
+		LessonCreateRequest LESSON = LessonCreateRequestFactory.VALID_LESSON_CREATE_REQUEST;
 		return LessonUpdateRequest.builder()
 				.lessonCategories(LESSON.getLessonCategories())
 				.description(LESSON.getDescription())

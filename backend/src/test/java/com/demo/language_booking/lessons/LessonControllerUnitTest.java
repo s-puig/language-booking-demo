@@ -135,7 +135,7 @@ public final class LessonControllerUnitTest {
 	@DisplayName("POST /v1/lessons")
 	@Test
 	public void createLesson() throws Exception {
-		LessonCreateRequest lessonCreateRequest = LessonCreateRequestFactory.VALID_CREATE_LESSON;
+		LessonCreateRequest lessonCreateRequest = LessonCreateRequestFactory.VALID_LESSON_CREATE_REQUEST;
 		Lesson lesson = LessonFactory.from(lessonCreateRequest);
 
 		when(lessonService.create(anyLong(),

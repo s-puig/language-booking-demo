@@ -2,6 +2,7 @@ package com.demo.language_booking.lessons;
 
 import com.demo.language_booking.lessons.dto.LessonCreateRequest;
 import com.demo.language_booking.lessons.dto.LessonUpdateRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.NonNull;
 
@@ -15,15 +16,15 @@ public interface LessonService {
 	List<Lesson> findAll();
 
 	@NonNull
-	List<Lesson> findAll(@NotNull LessonFilter filter);
+	List<Lesson> findAll(@Valid @NotNull LessonFilter filter);
 
 	@NonNull
-	Lesson create(long id, @NotNull LessonCreateRequest lessonCreateRequest);
+	Lesson create(long userId, @Valid @NotNull LessonCreateRequest lessonCreateRequest);
 
 	@NonNull
-	Lesson update(long id, @NotNull LessonUpdateRequest lessonUpdateRequest);
+	Lesson update(long id, @Valid @NotNull LessonUpdateRequest lessonUpdateRequest);
 
 	void delete(long id);
 
-	Lesson save(@NotNull Lesson lesson);
+	Lesson save(@Valid @NotNull Lesson lesson);
 }

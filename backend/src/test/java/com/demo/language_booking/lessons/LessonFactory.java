@@ -26,7 +26,13 @@ public final class LessonFactory {
 		return lessonBuilder(lessonCreateRequest).build();
 	}
 
+	public static Lesson from(LessonCreateRequest lessonCreateRequest, User user) {
+		return lessonBuilder(lessonCreateRequest)
+				.tutor(user)
+				.build();
+	}
+
 	public static Lesson.LessonBuilder validLessonBuilder() {
-		return lessonBuilder(LessonCreateRequestFactory.VALID_CREATE_LESSON);
+		return lessonBuilder(LessonCreateRequestFactory.VALID_LESSON_CREATE_REQUEST);
 	}
 }

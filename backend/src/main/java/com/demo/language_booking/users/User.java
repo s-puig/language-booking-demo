@@ -13,7 +13,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,8 +22,10 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
-	@OneToMany(mappedBy = "tutor")
-	List<Lesson> lessons;
+	// Lessons are never deleted, instead they are soft-deleted. CascadeType.REMOVE is only for testing purposes.
+	@OneToMany(mappedBy = "tutor", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	//@Immutable
+			Set<Lesson> lessons;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class LessonCreateRequestFactory {
-	public static final LessonCreateRequest VALID_CREATE_LESSON = validCreateLessonRequestBuilder().build();
+	public static final LessonCreateRequest VALID_LESSON_CREATE_REQUEST = validCreateLessonRequestBuilder().build();
 
 	public static LessonCreateRequest.LessonCreateRequestBuilder validCreateLessonRequestBuilder() {
 		return LessonCreateRequest.builder()

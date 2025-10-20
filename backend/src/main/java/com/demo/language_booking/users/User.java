@@ -3,6 +3,8 @@ package com.demo.language_booking.users;
 import com.demo.language_booking.common.Country;
 import com.demo.language_booking.lessons.Lesson;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,9 +32,12 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
 	private Long id;
-	@Column(name = "username", nullable = false, unique = true)
+	@Size(min = 5, max = 32, message = "Username must be between 5 and 32 characters long")
+	@NotBlank(message = "Username cannot be empty")
+	@Column(name = "username", nullable = false, unique = true, length = 32)
 	private String username;
-	@Column(name = "email", nullable = false, unique = true)
+	@Size(min = 5, max = 64, message = "Email must be at most 64 characters long")
+	@Column(name = "email", nullable = false, unique = true, length = 64)
 	private String email;
 	@Column(name = "password", nullable = false)
 	private String password;

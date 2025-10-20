@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -26,8 +27,8 @@ import java.util.Set;
 public class User {
 	// Lessons are never deleted, instead they are soft-deleted. CascadeType.REMOVE is only for testing purposes.
 	@OneToMany(mappedBy = "tutor", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-	//@Immutable
-			Set<Lesson> lessons;
+	@Immutable
+	Set<Lesson> lessons;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")

@@ -8,5 +8,6 @@ public enum CEFRLevel {
     B2,
     B1,
     A2,
-    A1
+    A1,
+    NONE
 }

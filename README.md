@@ -2,7 +2,7 @@
 Java Spring(boot) backend service for a language tutoring platform using a modular monolith architecture. 
 
 
-This project is designed to showcase best practices in API design, documentation, test-driven development (TDD) with JUnit, CI/CD, authentication, role-based authorization, ~payment processing (Stripe) and scheduling~.
+This project is designed to showcase best practices in API design, documentation, test-driven development (TDD) with JUnit, CI/CD, authentication, role-based authorization, ~payment processing (Stripe)~ and scheduling.
 
 # Tech stack
 
@@ -32,7 +32,7 @@ _I'm aware of Spring Security, just wanted to play around with Java Annotation/R
   - Booking of lessons
   - [ ] (Opt) Email notification on booking success
 - [ ] Payment
-- [ ] Lesson Offerings
+- [x] Lesson Offerings
   - Tutor lesson offerings types, prices and limits (e.g. trial lessons) 
 - [ ] OpenAPI+Swagger integration
 - [ ] CI/CD

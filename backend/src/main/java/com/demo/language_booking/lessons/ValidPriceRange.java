@@ -5,6 +5,10 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+/**
+ * Annotation to validate that minPrice is less than or equal to maxPrice.
+ */
+
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ValidPriceRangeConstraint.class)

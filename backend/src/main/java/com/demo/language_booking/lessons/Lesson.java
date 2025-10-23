@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * Represents a language lesson entity in the system.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

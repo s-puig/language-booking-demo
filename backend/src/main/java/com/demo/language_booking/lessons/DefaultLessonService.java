@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Default implementation of the LessonService interface.
+ * Provides implementations for managing lesson entities including creation, retrieval, updating, and deletion.
+ */
 @RequiredArgsConstructor
 @Validated
 @Service
@@ -30,6 +34,12 @@ public class DefaultLessonService implements LessonService {
 	private final LessonMapper lessonMapper;
 	private final UserService userService;
 
+	/**
+	 * Creates a Specification for filtering Lesson entities based on the provided filter criteria.
+	 *
+	 * @param filter the LessonFilter containing the criteria to filter lessons by
+	 * @return a Specification that can be used to query lessons matching the specified criteria
+	 */
 	public static Specification<Lesson> withFilter(LessonFilter filter) {
 		return (root, query, cb) -> {
 			Set<Predicate> predicates = new HashSet<>();

@@ -10,6 +10,12 @@ import java.util.Optional;
 
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long>, JpaSpecificationExecutor<Lesson> {
+	/**
+	 * Finds a lesson by ID including deleted lessons.
+	 *
+	 * @param id the ID of the lesson to find
+	 * @return the lesson if found, or empty Optional if not found
+	 */
 	@Query(value = "SELECT * FROM lessons WHERE lesson_id = :id", nativeQuery = true)
 	Optional<Lesson> findByIdIncludeDeleted(@Param("id") Long id);
 }
